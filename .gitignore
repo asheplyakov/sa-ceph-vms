@@ -1,0 +1,5 @@
+config-drive/*/openstack/2012-08-10/user_data
+config-drive/*/openstack/2012-08-10/meta_data.json
+.*.sw[opn]
+*.qcow2
+*.iso

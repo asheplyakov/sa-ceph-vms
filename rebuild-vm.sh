@@ -9,9 +9,8 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-UBUNTU_RELEASE="vivid"
-UBUNTU_IMG="/srv/data/Public/img/${UBUNTU_RELEASE}-server-cloudimg-amd64-disk1.img"
-UBUNTU_IMG_URL="https://cloud-images.ubuntu.com/${UBUNTU_RELEASE}/current/${UBUNTU_RELEASE}-server-cloudimg-amd64-disk1.img"
+UBUNTU_IMG="/srv/data/Public/img/trusty-server-cloudimg-amd64-disk1.img"
+UBUNTU_IMG_URL="https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img"
 
 if [ ! -f "$UBUNTU_IMG" ]; then
 	wget -N -O "$UBUNTU_IMG" "$UBUNTU_IMG_URL"

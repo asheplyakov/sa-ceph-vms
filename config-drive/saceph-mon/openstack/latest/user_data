@@ -13,18 +13,9 @@ ssh_authorized_keys:
 
 bootcmd:
  - echo 'Acquire::http::proxy "http://192.168.128.1:3128";' > /etc/apt/apt.conf.d/90_use_proxy
- - echo 'deb http://ru.archive.ubuntu.com/ubuntu trusty          main universe multiverse restricted' > /etc/apt/sources.list
- - echo 'deb http://ru.archive.ubuntu.com/ubuntu trusty-updates  main universe multiverse restricted' >> /etc/apt/sources.list
- - echo 'deb http://ru.archive.ubuntu.com/ubuntu trusty-security main universe multiverse restricted' >> /etc/apt/sources.list
- - echo 'deb http://mirror.fuel-infra.org/mos-repos/ubuntu/7.0 mos7.0 main' >> /etc/apt/sources.list
- - "echo 'Package: ceph-deploy' > /etc/apt/preferences"
- - "echo 'Pin: release n=mos*' >> /etc/apt/preferences"
- - "echo 'Pin-Priority: 1051' >> /etc/apt/preferences"
- - "echo >> /etc/apt/preferences"
- - "echo 'Package: *' >> /etc/apt/preferences"
- - "echo 'Pin: release n=mos*' >> /etc/apt/preferences"
- - "echo 'Pin-Priority: 10' >> /etc/apt/preferences"
- - "wget -O - http://mirror.fuel-infra.org/mos-repos/ubuntu/7.0/archive-mos7.0.key | apt-key add -"
+ - echo 'deb http://ru.archive.ubuntu.com/ubuntu vivid          main universe multiverse restricted' > /etc/apt/sources.list
+ - echo 'deb http://ru.archive.ubuntu.com/ubuntu vivid-updates  main universe multiverse restricted' >> /etc/apt/sources.list
+ - echo 'deb http://ru.archive.ubuntu.com/ubuntu vivid-security main universe multiverse restricted' >> /etc/apt/sources.list
  - echo 'nameserver 192.168.122.1' > /etc/resolv.conf
  - echo 10.253.0.1 sahost >> /etc/hosts
  - echo 10.253.0.2 saceph-mon >> /etc/hosts

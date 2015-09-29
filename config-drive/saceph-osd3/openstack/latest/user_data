@@ -40,12 +40,11 @@ bootcmd:
  - echo 'auto eth1' > /etc/network/interfaces.d/eth1.cfg
  - echo 'iface eth1 inet manual' >> /etc/network/interfaces.d/eth1.cfg
  - echo 'up ip link set up dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'up ip addr add 10.253.0.2/24 brd 10.253.0.255 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
+ - echo 'up ip addr add 10.253.0.5/24 brd 10.253.0.255 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
  - echo 'down ip link set down dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'down ip addr del 10.253.0.2/24 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
+ - echo 'down ip addr del 10.253.0.5/24 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
  - apt-get update
  - apt-get dist-upgrade -y
  - apt-get install -y haveged ceph-deploy vim-nox git build-essential ipython
- - sed -re '^/\/usr\/share\/man/ d' -i /var/lib/dpkg/info/ceph-deploy.list
 
 apt_preserve_sources_list: True

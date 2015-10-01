@@ -46,5 +46,6 @@ bootcmd:
  - apt-get update
  - apt-get dist-upgrade -y
  - apt-get install -y haveged ceph-deploy vim-nox git build-essential ipython
+ - sed -re '/^\/usr\/share\/man/ d' -i /var/lib/dpkg/info/ceph-deploy.list
 
 apt_preserve_sources_list: True

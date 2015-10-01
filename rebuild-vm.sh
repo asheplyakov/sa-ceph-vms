@@ -23,6 +23,7 @@ if ! virsh domid "$vm" >/dev/null 2>&1; then
 	virsh define "${vm}.xml"
 fi
 rm -f "${vm}.qcow2"
-cp -a $UBUNTU_IMG "${vm}.qcow2"
+qemu-img create -f qcow2 "${vm}.qcow2" 8G
+virt-resize --expand /dev/sda1 "$UBUNTU_IMG" "${vm}.qcow2"
 ./mkconfdrive "$vm"
 exec virsh start "$vm"

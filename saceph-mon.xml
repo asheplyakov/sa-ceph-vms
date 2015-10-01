@@ -21,8 +21,8 @@
   <devices>
     <emulator>/usr/bin/kvm</emulator>
     <disk type='file' device='disk'>
-      <driver name='qemu' type='qcow2'/>
-      <source file='/home/asheplyakov/work/ceph/sa-ceph-vms/saceph-mon.qcow2'/>
+      <driver name='qemu' type='raw'/>
+      <source dev='/dev/as-ubuntu-vg/saceph-mon-os'/>
       <target dev='vda' bus='virtio'/>
       <serial>SACEPH_MON_000001</serial>
       <boot order='1'/>

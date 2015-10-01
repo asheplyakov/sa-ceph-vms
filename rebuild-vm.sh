@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 MYSELF="${0##*/}"
+VM_OS_VG=as-ubuntu-vg
 
 vm="$1"
 
@@ -22,8 +23,9 @@ virsh destroy "$vm" || true
 if ! virsh domid "$vm" >/dev/null 2>&1; then
 	virsh define "${vm}.xml"
 fi
-rm -f "${vm}.qcow2"
-qemu-img create -f qcow2 "${vm}.qcow2" 8G
-virt-resize --expand /dev/sda1 "$UBUNTU_IMG" "${vm}.qcow2"
+vm_hdd="/dev/$VM_OS_VG/${vm}-os"
+sudo chgrp adm "$vm_hdd"
+dd if=/dev/zero of="$vm_hdd" bs=1M count=32
+virt-resize --expand /dev/sda1 "$UBUNTU_IMG" "$vm_hdd"
 ./mkconfdrive "$vm"
 exec virsh start "$vm"

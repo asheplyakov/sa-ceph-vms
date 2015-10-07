@@ -17,6 +17,13 @@ if [ ! -f "$UBUNTU_IMG" ]; then
 	wget -N -O "$UBUNTU_IMG" "$UBUNTU_IMG_URL"
 fi
 
+case $vm in
+	saceph-buildd)
+		VM_OS_VG="wdgreen"
+		;;
+	*)
+		;;
+esac
 
 cd "${0%/*}"
 virsh destroy "$vm" || true

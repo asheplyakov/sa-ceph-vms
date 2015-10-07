@@ -47,9 +47,15 @@ bootcmd:
  - apt-get dist-upgrade -y
  - apt-get install -y haveged ceph-deploy nfs-common libstdc++6-4.8-dbg gdb vim-nox git build-essential devscripts ipython
  - sed -re '/^\/usr\/share\/man/ d' -i /var/lib/dpkg/info/ceph-deploy.list
- - echo 'python sys.path.append("/usr/share/gcc-4.8/python")' >> /root/.gdbinit
  - cd /root && dget -u -x http://archive.ubuntu.com/ubuntu/pool/main/c/ceph/ceph_0.94.2-0ubuntu0.15.04.1.dsc
  - mkdir -m755 -p /media/work
  - "echo '10.253.0.1:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime 0 0' > /etc/fstab"
+
+write_files:
+ - path: /root/.gdbinit
+   permissions: '0644'
+   content: |
+     python sys.path.append("/usr/share/gcc-4.8/python")
+     break 'ReplicatedPG::maybe_handle_cache(std::tr1::shared_ptr<OpRequest>, bool, std::tr1::shared_ptr<ObjectContext>, int, hobject_t const&, bool, bool)'
 
 apt_preserve_sources_list: True

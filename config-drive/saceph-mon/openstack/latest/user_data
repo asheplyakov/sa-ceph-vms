@@ -47,7 +47,7 @@ bootcmd:
  - apt-get dist-upgrade -y
  - apt-get install -y haveged ceph-deploy nfs-common libstdc++6-4.8-dbg gdb vim-nox git build-essential devscripts ipython
  - sed -re '/^\/usr\/share\/man/ d' -i /var/lib/dpkg/info/ceph-deploy.list
- - cd /root && dget -u -x http://archive.ubuntu.com/ubuntu/pool/main/c/ceph/ceph_0.94.2-0ubuntu0.15.04.1.dsc
+ - "cd /root && env HTTP_PROXY=http://192.168.122.1:3128 dget -u -x http://ru.archive.ubuntu.com/ubuntu/pool/main/c/ceph/ceph_0.94.2-0ubuntu0.15.04.1.dsc"
  - mkdir -m755 -p /media/work
  - "echo '10.253.0.1:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime 0 0' > /etc/fstab"
 

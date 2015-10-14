@@ -51,6 +51,8 @@ bootcmd:
  - sed -re '/^\/usr\/share\/man/ d' -i /var/lib/dpkg/info/ceph-deploy.list
  - mkdir -m755 -p /media/work
  - "echo '10.253.0.1:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime 0 0' >> /etc/fstab"
+ - cd /root && env HTTP_PROXY=http://192.168.122.1:3128 dget -u -x http://archive.ubuntu.com/ubuntu/pool/main/c/ceph/ceph_0.94.3-0ubuntu2.dsc
+ - cd /root/ceph-0.94.3 && /usr/lib/pbuilder/pbuilder-satisfydepends
 
 write_files:
  - path: /root/.gdbinit

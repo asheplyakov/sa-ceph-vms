@@ -3,6 +3,11 @@ set -e
 MON="saceph-mon"
 OSDS="saceph-osd1 saceph-osd2 saceph-osd3"
 
+mkdir -p -m 0755 ~/.ssh
+for node in $MON $OSDS; do
+	ssh-keyscan -t rsa $node
+done >> ~/.ssh/known_hosts
+
 ceph-deploy --overwrite-conf new $MON
 ceph-deploy --overwrite-conf install $MON $OSDS
 ceph-deploy --overwrite-conf mon create-initial

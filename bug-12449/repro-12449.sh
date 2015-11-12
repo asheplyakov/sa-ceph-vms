@@ -18,13 +18,9 @@ ceph osd pool set cache target_max_bytes $CACHE_SIZE
 
 for n in `seq 1 3`; do
 	osd_host="saceph-osd${n}"
-	# Collect the most verbose logs from osd and filestore
+	# Collect the most verbose logs from osd, filestore, and journal
 	ssh $osd_host "ceph daemon osd.$((n-1)) config set debug_osd 20/20" 
 	ssh $osd_host "ceph daemon osd.$((n-1)) config set debug_filestore 20/20"
 	ssh $osd_host "ceph daemon osd.$((n-1)) config set debug_journal 20/20" 
 done
-# dd if=/dev/zero of=200m.dat bs=1M count=200
-
-# echo rados put -p base x1 200m.dat || true
-# echo rados put -p base x1 200m.dat || true
 

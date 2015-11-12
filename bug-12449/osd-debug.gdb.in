@@ -1,0 +1,60 @@
+python sys.path.append("/usr/share/gcc-4.8/python")
+dir $cdir:$cwd:/root/ceph-@CEPH_VERSION@/src
+file /usr/bin/ceph-osd
+target remote @OSD_IP@:@OSD_GDB_PORT@
+trace 'ReplicatedPG::maybe_handle_cache(std::tr1::shared_ptr<OpRequest>, bool, std::tr1::shared_ptr<ObjectContext>, int, hobject_t const&, bool, bool)'
+actions 1
+collect $args, $regs, $_ret, $locals
+end
+trace 'ReplicatedPG::do_cache_redirect(std::tr1::shared_ptr<OpRequest>)'
+actions 2
+collect $args, $regs, $_ret, $locals
+end
+trace 'ReplicatedPG::promote_object(std::tr1::shared_ptr<ObjectContext>, hobject_t const&, object_locator_t const&, std::tr1::shared_ptr<OpRequest>)'
+actions 3
+collect $args, $regs, $_ret, $locals
+end
+trace 'ReplicatedPG::process_copy_chunk(hobject_t, unsigned long, int)'
+actions 4
+collect $args, $regs, $_ret, $locals
+end
+trace 'ReplicatedPG::finish_copyfrom(ReplicatedPG::OpContext*)'
+actions 5
+collect $args, $regs, $_ret, $locals
+end
+trace 'ReplicatedPG::_write_copy_chunk(boost::shared_ptr<ReplicatedPG::CopyOp>, PGBackend::PGTransaction*)'
+actions 6
+collect $args, $regs, $_ret, $locals
+end
+trace 'ReplicatedPG::finish_promote(int, ReplicatedPG::CopyResults*, std::tr1::shared_ptr<ObjectContext>)'
+actions 7
+collect $args, $regs, $_ret, $locals
+end
+trace 'ReplicatedPG::_build_finish_copy_transaction(boost::shared_ptr<ReplicatedPG::CopyOp>, PGBackend::PGTransaction*)'
+actions 8
+collect $args, $regs, $_ret, $locals
+end
+trace 'ReplicatedBackend::submit_transaction(hobject_t const&, eversion_t const&, PGBackend::PGTransaction*, eversion_t const&, eversion_t const&, std::vector<pg_log_entry_t, std::allocator<pg_log_entry_t> > const&, boost::optional<pg_hit_set_history_t>&, Context*, Context*, Context*, unsigned long, osd_reqid_t, std::tr1::shared_ptr<OpRequest>)'
+actions 9
+collect $args, $regs, $_ret, $locals
+end
+trace 'ReplicatedPG::send_message_osd_cluster(Message*, boost::intrusive_ptr<Connection> const&)'
+actions 10
+collect $args, $regs, $_ret, $locals
+end
+### XXX: gdb dislikes these tracepoints
+# trace 'ReplicatedBackend::issue_op(hobject_t const&, eversion_t const&, unsigned long, osd_reqid_t, eversion_t, eversion_t, hobject_t, hobject_t, std::vector<pg_log_entry_t, std::allocator<pg_log_entry_t> > const&, boost::optional<pg_hit_set_history_t>&, ReplicatedBackend::InProgressOp*, ObjectStore::Transaction*)'
+# actions 11
+# collect $args, $regs, $_ret, $locals
+# end
+# trace 'PGBackend::PGTransaction::write(hobject_t const&, unsigned long, unsigned long, ceph::buffer::list&, unsigned int)'
+# actions 12
+# collect $args, $regs, $_ret, $locals
+# end
+# trace 'PGBackend::PGTransaction::append(hobject_t const&, unsigned long, unsigned long, ceph::buffer::list&, unsigned int)'
+# actions 13
+# collect $args, $regs, $_ret, $locals
+# end
+
+tstart
+continue

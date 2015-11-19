@@ -1,15 +1,31 @@
 #!/bin/sh
+set -e
 cd "${0%/*}"
-target_pool=simple
-counter=0
 osd_count=3
-size="${1:-16}" # size of a test object in MBs
+counter=0
+target_pool="simple"
+size=16 # size of a test object in MBs
+
+for arg; do
+	case $arg in
+		-p|--pool)
+			shift
+			target_pool="$1"
+			;;
+		-s|--size)
+			shift
+			size="$2"
+			;;
+	esac
+done
+
 if [ -f 'counter' ]; then
 	counter=`cat counter`
 fi
 counter=$((counter+1))
 echo $counter > counter
-dd if=/dev/urandom bs=1M count=${size} of=sr4k.dat
+payload_file="${TMP:-/tmp}/t${counter}.dat"
+dd if=/dev/urandom bs=1M count=${size} of=${payload_file}
 if [ -n "$DRY_RUN" ]; then
 	DRY_RUN=echo
 fi
@@ -22,7 +38,7 @@ for osd_idx in `seq 1 $osd_count`; do
 	log_dump="/tmp/osd-${target_pool}-osd-$((osd_idx-1)).log"
 	ssh "$osd_host" /bin/sh -c "\"nohup tail -F $main_log_file > $log_dump&\""
 done
-$DRY_RUN rados put t${counter}.dat sr4k.dat -p $target_pool
+rados put t${counter}.dat "${payload_file}" -p $target_pool || true
 sleep 5
 
 for osd_idx in `seq 1 $osd_count`; do

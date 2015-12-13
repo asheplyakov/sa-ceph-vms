@@ -22,5 +22,6 @@ for n in `seq 1 3`; do
 	ssh $osd_host "ceph daemon osd.$((n-1)) config set debug_osd 20/20" 
 	ssh $osd_host "ceph daemon osd.$((n-1)) config set debug_filestore 20/20"
 	ssh $osd_host "ceph daemon osd.$((n-1)) config set debug_journal 20/20" 
+	ssh $osd_host "ceph daemon osd.$((n-1)) config set debug_optracker 20/20"
 done
 

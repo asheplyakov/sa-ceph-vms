@@ -52,8 +52,12 @@ fi
 
 cd "${src_dir}"
 
-find . -type f -name '*.cc' -or -name '*.[ch]pp' -or -name '*.[ch]' | \
-	grep -v -E '^\.\/\.pc' > ${projname}.files
+if [ -d '.git' ]; then
+	git ls-files '*.cc' '*.[ch]' '*.[ch]pp' | sort -u > ${projname}.files
+else
+	find . -type f -name '*.cc' -or -name '*.[ch]pp' -or -name '*.[ch]' | \
+		grep -v -E '^\.\/\.pc' > ${projname}.files
+fi
 
 cat > ${projname}.includes <<-EOF
 src

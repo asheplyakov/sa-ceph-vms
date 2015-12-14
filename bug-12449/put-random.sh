@@ -6,15 +6,29 @@ counter=0
 target_pool="simple"
 size=16 # size of a test object in MBs
 
-for arg; do
-	case $arg in
-		-p|--pool)
-			shift
-			target_pool="$1"
+print_help () {
+	cat <<-EOF
+	Usage: ${0##*/} [-p pool name] [-s size in MBs] [-h]
+	Upload an object of the given size to the specified pool.
+	The object is created on the fly and filled with a random content.
+
+	-p	target pool name
+	-s	size of the object in MBs
+	-h	print this text and exit
+	EOF
+}
+
+while getopts "hp:s:" OPT; do
+	case "$OPT" in
+		h)
+			print_help
+			exit 0
 			;;
-		-s|--size)
-			shift
-			size="$2"
+		p)
+			target_pool="$OPTARG"
+			;;
+		s)
+			size="$OPTARG"
 			;;
 	esac
 done

@@ -7,17 +7,31 @@ src_dir=''
 projname=''
 do_open=''
 
-for arg; do
-	case $arg in
-		-n|--project-name)
-			shift
-			projname="$1"
+print_help() {
+	cat <<-EOF
+	Usage: ${MYNAME} [-s src_dir] [-n project_name] [-o] [-h]
+	Create Qt Creator project files for Ceph and optionally open project
+
+	-s	directory where Ceph code is located
+	-n	name of the project to be displayed in Qt Creator
+	-o	open the project in Qt Creator
+	-h	print this text and exit
+	EOF
+}
+
+while getopts "hon:s:" OPT; do
+	case "$OPT" in
+		h)
+			print_help
+			exit 0
 			;;
-		-s|--src-dir)
-			shift
-			src_dir="$1"
+		s)
+			src_dir="$OPTARG"
 			;;
-		-o|--open)
+		n)
+			projname="$OPTARG"
+			;;
+		o)
 			do_open='yes'
 			;;
 	esac

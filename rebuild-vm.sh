@@ -18,7 +18,7 @@ if [ ! -f "$UBUNTU_IMG" ]; then
 fi
 
 case $vm in
-	saceph-buildd)
+	saceph-adm)
 		VM_OS_VG="wdgreen"
 		;;
 	*)

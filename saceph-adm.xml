@@ -1,8 +1,8 @@
 <domain type='kvm'>
-  <name>saceph-buildd</name>
-  <memory unit='KiB'>4194304</memory>
-  <currentMemory unit='KiB'>4194304</currentMemory>
-  <vcpu placement='static'>4</vcpu>
+  <name>saceph-adm</name>
+  <memory unit='KiB'>2048576</memory>
+  <currentMemory unit='KiB'>2048576</currentMemory>
+  <vcpu placement='static'>2</vcpu>
   <resource>
     <partition>/machine</partition>
   </resource>
@@ -22,14 +22,14 @@
     <emulator>/usr/bin/kvm</emulator>
     <disk type='block' device='disk'>
       <driver name='qemu' type='raw'/>
-      <source dev='/dev/wdgreen/saceph-buildd-os'/>
+      <source dev='/dev/wdgreen/saceph-adm-os'/>
       <target dev='vda' bus='virtio'/>
       <serial>SACEPH_BUILDD_001</serial>
       <boot order='1'/>
     </disk>
     <disk type='file' device='cdrom'>
       <driver name='qemu' type='raw'/>
-      <source file='/home/asheplyakov/work/ceph/sa-ceph-vms/saceph-buildd-config.iso'/>
+      <source file='/home/asheplyakov/work/ceph/sa-ceph-vms/saceph-adm-config.iso'/>
       <target dev='vdc' bus='virtio'/>
       <readonly/>
     </disk>

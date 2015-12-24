@@ -17,42 +17,33 @@ bootcmd:
  - echo 'deb http://ru.archive.ubuntu.com/ubuntu trusty          main universe multiverse restricted' > /etc/apt/sources.list
  - echo 'deb http://ru.archive.ubuntu.com/ubuntu trusty-updates  main universe multiverse restricted' >> /etc/apt/sources.list
  - echo 'deb http://ru.archive.ubuntu.com/ubuntu trusty-security main universe multiverse restricted' >> /etc/apt/sources.list
- - echo 'deb http://mirror.fuel-infra.org/mos-repos/ubuntu/7.0 mos7.0 main' >> /etc/apt/sources.list
  - echo 'deb http://asheplyakov.srt.mirantis.net/Public/debian/ceph-hammer-trusty trusty main' >> /etc/apt/sources.list
- - "echo 'Package: ceph-deploy' > /etc/apt/preferences"
- - "echo 'Pin: release n=mos*' >> /etc/apt/preferences"
- - "echo 'Pin-Priority: 1051' >> /etc/apt/preferences"
- - "echo >> /etc/apt/preferences"
- - "echo 'Package: *' >> /etc/apt/preferences"
- - "echo 'Pin: release n=mos*' >> /etc/apt/preferences"
- - "echo 'Pin-Priority: 10' >> /etc/apt/preferences"
- - "echo >> /etc/apt/preferences"
+ - echo 'deb-src http://asheplyakov.srt.mirantis.net/Public/debian/ceph-hammer-trusty trusty main' >> /etc/apt/sources.list
  - "echo 'Package: *' >> /etc/apt/preferences"
  - "echo 'Pin: release l=sa-hammer-trusty' >> /etc/apt/preferences"
  - "echo 'Pin-Priority: 1051' >> /etc/apt/preferences"
- - "wget -O - http://mirror.fuel-infra.org/mos-repos/ubuntu/7.0/archive-mos7.0.key | apt-key add -"
  - echo 'nameserver 192.168.122.1' > /etc/resolv.conf
  - echo 10.253.0.1 sahost >> /etc/hosts
- - echo 10.253.0.2 saceph-mon >> /etc/hosts
- - echo 10.253.0.3 saceph-osd1 >> /etc/hosts
- - echo 10.253.0.4 saceph-osd2 >> /etc/hosts
- - echo 10.253.0.5 saceph-osd3 >> /etc/hosts
- - echo 10.253.0.6 saceph-buildd >> /etc/hosts
+ - echo 10.253.0.10 saceph-adm >> /etc/hosts
+ - echo 10.253.0.20 saceph-mon >> /etc/hosts
+ - echo 10.253.0.100 saceph-osd1 >> /etc/hosts
+ - echo 10.253.0.102 saceph-osd2 >> /etc/hosts
+ - echo 10.253.0.104 saceph-osd3 >> /etc/hosts
  - echo 'auto eth1' > /etc/network/interfaces.d/eth1.cfg
  - echo 'iface eth1 inet manual' >> /etc/network/interfaces.d/eth1.cfg
  - echo 'up ip link set up dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'up ip addr add 10.253.0.6/24 brd 10.253.0.255 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
+ - echo 'up ip addr add 10.253.0.10/24 brd 10.253.0.255 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
  - echo 'down ip link set down dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'down ip addr del 10.253.0.6/24 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
+ - echo 'down ip addr del 10.253.0.10/24 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
  - apt-get update
  - apt-get dist-upgrade -y
  - apt-get install -y --force-yes libpython3.4-stdlib=3.4.0-2ubuntu1.1 python3.4=3.4.0-2ubuntu1.1 libpython3.4-minimal=3.4.0-2ubuntu1.1 python3.4-minimal=3.4.0-2ubuntu1.1
- - apt-get install -y haveged ceph-deploy nfs-common libstdc++6-4.8-dbg gdb gdbserver vim-nox git build-essential devscripts pbuilder aptitude
+ - apt-get install -y haveged ceph-deploy nfs-common libstdc++6-4.8-dbg gdb gdbserver vim-nox git
  - sed -re '/^\/usr\/share\/man/ d' -i /var/lib/dpkg/info/ceph-deploy.list
  - mkdir -m755 -p /media/work
  - "echo '10.253.0.1:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime 0 0' >> /etc/fstab"
- - cd /root && env HTTP_PROXY=http://192.168.122.1:3128 dget -u -x http://archive.ubuntu.com/ubuntu/pool/main/c/ceph/ceph_0.94.5-0ubuntu1.dsc
- - cd /root/ceph-0.94.5 && /usr/lib/pbuilder/pbuilder-satisfydepends
+ - cd /root && apt-get source ceph
+ - apt-get build-dep ceph
 
 write_files:
  - path: /root/.gdbinit

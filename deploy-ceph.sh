@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+ADM="saceph-adm"
 MON="saceph-mon"
 OSDS="saceph-osd1 saceph-osd2 saceph-osd3"
 
@@ -21,7 +22,8 @@ for osd in $OSDS; do
 	ceph-deploy --overwrite-conf osd activate ${osd}:/dev/vdb1:/dev/vdc1
 done
 
-ceph-deploy --overwrite-conf admin $MON $OSDS
+ceph-deploy --overwrite-conf admin $ADM $MON $OSDS
+
 for node in $MON $OSDS; do
 	ssh $node apt-get install -y ceph-dbg
 done

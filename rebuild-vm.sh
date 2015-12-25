@@ -2,6 +2,7 @@
 set -e
 MYSELF="${0##*/}"
 VM_OS_VG=as-ubuntu-vg
+CALLBACK_PORT=3333
 
 vm="$1"
 
@@ -35,4 +36,14 @@ sudo chgrp adm "$vm_hdd"
 dd if=/dev/zero of="$vm_hdd" bs=1M count=32
 virt-resize --expand /dev/sda1 "$UBUNTU_IMG" "$vm_hdd"
 ./mkconfdrive "$vm"
-exec virsh start "$vm"
+virsh start "$vm"
+
+echo "${MYSELF}: waiting for $vm to call back" >&2
+
+nc -l -p $CALLBACK_PORT | while read line; do
+	if [ "$line" != "ready" ]; then
+		echo "${MYSELF}: failed to rebuild VM $vm" >&2
+		exit 1
+	fi
+done
+

@@ -51,3 +51,8 @@ write_files:
      break 'ReplicatedPG::maybe_handle_cache(std::tr1::shared_ptr<OpRequest>, bool, std::tr1::shared_ptr<ObjectContext>, int, hobject_t const&, bool, bool)'
 
 apt_preserve_sources_list: True
+
+runcmd:
+ - dpkg --configure -a
+ - "echo ready | nc -w1 sahost 3333"
+ - "apt-get purge -y cloud-init && sleep 10 && shutdown -r now"

@@ -33,12 +33,12 @@ bootcmd:
  - echo 'auto eth1' > /etc/network/interfaces.d/eth1.cfg
  - echo 'iface eth1 inet manual' >> /etc/network/interfaces.d/eth1.cfg
  - echo 'up ip link set up dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'up ip addr add 10.253.0.102/24 brd 10.253.0.255 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
+ - echo 'up ip addr add 10.253.0.22/24 brd 10.253.0.255 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
  - echo 'down ip link set down dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'down ip addr del 10.253.0.102/24 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
+ - echo 'down ip addr del 10.253.0.22/24 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
  - apt-get update
  - apt-get dist-upgrade -y
- - apt-get install -y haveged ceph-deploy nfs-common libstdc++6-4.8-dbg gdb gdbserver vim-nox git
+ - apt-get install -y haveged ceph-deploy nfs-common libstdc++6-4.8-dbg gdb gdbserver vim-nox
  - sed -re '/^\/usr\/share\/man/ d' -i /var/lib/dpkg/info/ceph-deploy.list
  - mkdir -m755 -p /media/work
  - "echo '10.253.0.1:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime 0 0' >> /etc/fstab"

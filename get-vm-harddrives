@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+import subprocess
+import sys
+from xml.etree import ElementTree
+
+
+def get_vm_harddrives(vmname):
+    vmxml_str = subprocess.check_output(['virsh', 'dumpxml', vmname])
+    vmxml = ElementTree.fromstring(vmxml_str)
+    # Extract virtual hard drives list (excluding CD-ROMs) from libvirt XML
+    #
+    # <devices>
+    #   <disk type='file' device='disk'>
+    #     <driver name='qemu' type='raw'/>
+    #     <source dev='/dev/wdgreen/saceph-mon-os'/>
+    #  </disk>
+    disks_xml = vmxml.findall("devices/disk[@device='disk']")
+    # Get the backing (host) device from the virtual HD description
+    #     <source dev='/dev/wdgreen/saceph-mon-os'/>
+    host_disks = [dxml.findall('source')[0].get('dev') for dxml in disks_xml]
+    return host_disks
+
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: get-vm-harddrives <VM-name>")
+        sys.exit(1)
+    vmname = sys.argv[1]
+    host_devices = get_vm_harddrives(vmname)
+    print('\n'.join(host_devices))
+    sys.exit(0)
+
+
+if __name__ == '__main__':
+    main()

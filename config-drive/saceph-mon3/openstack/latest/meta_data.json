@@ -1,0 +1,7 @@
+{
+	"availability_zone": "nova",
+	"hostname": "saceph-mon3",
+	"launch_index": 0,
+	"name": "saceph-mon3",
+	"uuid": "4185339c-88d8-4f4d-a3e2-2aec5e523f3d"
+}

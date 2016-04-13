@@ -62,9 +62,9 @@ write_files:
      auto eth1
      iface eth1 inet manual
      up ip link set up dev eth1
-     up ip addr add 10.253.0.20/24 brd 10.253.0.255 dev eth1
+     up ip addr add 10.253.0.24/24 brd 10.253.0.255 dev eth1
      down ip link set down dev eth1
-     down ip addr del 10.253.0.20/24 dev eth1
+     down ip addr del 10.253.0.24/24 dev eth1
 
 apt_preserve_sources_list: True
 

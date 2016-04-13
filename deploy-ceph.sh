@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 ADM="saceph-adm"
-MON="saceph-mon"
+MON="saceph-mon saceph-mon2 saceph-mon3"
 RGW="saceph-rgw"
 OSDS="saceph-osd1 saceph-osd2 saceph-osd3"
 

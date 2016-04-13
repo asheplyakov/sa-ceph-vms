@@ -10,11 +10,22 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-UBUNTU_IMG="/srv/data/Public/img/trusty-server-cloudimg-amd64-disk1.img"
+UBUNTU_IMG="/srv/data/Public/img/trusty-server-cloudimg-amd64-disk1.img.nojournal"
 UBUNTU_IMG_URL="https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img"
 
 if [ ! -f "$UBUNTU_IMG" ]; then
-	wget -N -O "$UBUNTU_IMG" "$UBUNTU_IMG_URL"
+	ORIG_UBUNTU_IMG="${UBUNTU_IMG%.nojournal}"
+	if [ ! -f "$ORIG_UBUNTU_IMG" ]; then
+		wget -N -O "$ORIG_UBUNTU_IMG" "$UBUNTU_IMG_URL"
+	fi
+	set -x
+	guestfish --ro -a "$ORIG_UBUNTU_IMG" run : download /dev/sda1 sda1-$$.img
+	tune2fs -O ^has_journal sda1-$$.img
+	cp -a "$ORIG_UBUNTU_IMG" tmp-$$.img
+	guestfish --rw -a tmp-$$.img run : upload sda1-$$.img /dev/sda1
+	virt-sparsify --compress tmp-$$.img "${UBUNTU_IMG}.tmp"
+	mv "${UBUNTU_IMG}.tmp" "${UBUNTU_IMG}"
+	set +x
 fi
 
 cd "${0%/*}"

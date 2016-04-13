@@ -6,9 +6,11 @@ RGW="saceph-rgw"
 OSDS="saceph-osd1 saceph-osd2 saceph-osd3"
 
 mkdir -p -m 0755 ~/.ssh
+if [ -f ~/.ssh/known_hosts ]; then
 for node in $MON $OSDS $ADM $RGW; do
 	ssh-keygen -f ~/.ssh/known_hosts -R "$node"
 done
+fi
 for node in $MON $OSDS $ADM $RGW; do
 	ssh-keyscan -t rsa $node
 done >> ~/.ssh/known_hosts

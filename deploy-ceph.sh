@@ -34,8 +34,4 @@ done
 
 ceph-deploy --overwrite-conf admin $ADM $MON $OSDS
 
-for node in $MON $OSDS; do
-	ssh $node apt-get install -y ceph-dbg
-done
-
 ceph health

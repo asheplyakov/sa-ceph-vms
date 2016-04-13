@@ -25,11 +25,18 @@ ceph-deploy --overwrite-conf mon create-initial
 for osd in $OSDS; do
 	ceph-deploy --overwrite-conf disk zap ${osd}:vdb
 	ceph-deploy --overwrite-conf disk zap ${osd}:vdc
-	ceph-deploy --overwrite-conf osd prepare ${osd}:vdb:/dev/vdc
-done
-
-for osd in $OSDS; do
-	ceph-deploy --overwrite-conf osd activate ${osd}:/dev/vdb1:/dev/vdc1
+	disk=$(ssh $osd find /dev/disk/by-id -type l -name 'virtio-*_DAT00?')
+	journal=$(ssh $osd find /dev/disk/by-id -type l -name 'virtio-*_JOURNA')
+	if [ -z "$disk" ]; then
+		echo "node $osd: can't find data HD" >&2
+		exit 1
+	fi
+	if [ -z "$journal" ]; then
+		echo "node $osd: can't find journal HD" >&2
+		exit 1
+	fi
+	ceph-deploy --overwrite-conf osd prepare ${osd}:${disk}:${journal}
+	ceph-deploy --overwrite-conf osd activate ${osd}:${disk}-part1:${journal}-part1
 done
 
 ceph-deploy --overwrite-conf admin $ADM $MON $OSDS

@@ -22,7 +22,7 @@
     <emulator>/usr/bin/kvm</emulator>
     <disk type='block' device='disk'>
       <driver name='qemu' type='raw'/>
-      <source dev='/dev/wdgreen/saceph-adm-os'/>
+      <source dev='/dev/as-ubuntu-vg/saceph-adm-os'/>
       <target dev='vda' bus='virtio'/>
       <serial>SACEPH_BUILDD_001</serial>
       <boot order='1'/>

@@ -1,0 +1,7 @@
+Name: update-mos9.0
+Method: http://mirror.fuel-infra.org/mos-repos/ubuntu/9.0
+Suite: mos9.0
+Components: main
+Architectures: amd64 source
+GetInRelease: no
+VerifyRelease: BCE5CC461FA22B08

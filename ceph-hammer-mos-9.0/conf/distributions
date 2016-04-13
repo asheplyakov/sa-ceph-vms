@@ -1,0 +1,9 @@
+Origin: Mirantis
+Label: hammer
+Suite: trusty
+Codename: trusty
+Version: 14.04
+Architectures: amd64 source
+Components: main
+Description: Ceph Hammer built for MOS 9.0 
+Update: update-mos9.0

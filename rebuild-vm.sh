@@ -40,7 +40,10 @@ fi
 
 sudo chgrp adm "$vm_hdd"
 dd if=/dev/zero of="$vm_hdd" bs=1M count=32
-virt-resize --expand /dev/sda1 "$UBUNTU_IMG" "$vm_hdd"
+# export LIBGUESTFS_DEBUG=1
+# export LIBGUESTFS_TRACE=1
+# verbose="--verbose"
+virt-resize ${verbose} --expand /dev/sda1 "$UBUNTU_IMG" "$vm_hdd"
 ./mkconfdrive "$vm"
 virsh start "$vm"
 

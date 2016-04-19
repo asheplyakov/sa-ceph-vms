@@ -12,47 +12,70 @@ ssh_authorized_keys:
  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAEAQDAyY13SlGh86kP6hHOA4fwA5Lgfh8CBIL+TjMMIQXvDcuOcBB+N0ATTGiBaDO7IxHcfM5CZgLJEBg4SPQsfaZDTAHviOSa58Au85PNGAzxU9ufqMzSj1xEDCZXIO4diQYfpqMGut6LUClDnccStDFjoG7bA6O3EUgbdqMFJWSK6BFR4GlskjDBAn79r1ydR7vdaQ4+8u2EdIzKsUK3Yy44QAHREhBQvPiS7361hEsYLIjlvpHzYaYHredOvUGQp9pPvDBqzGmXo/9TqNHiXQoQb4VejHY62KJrKUGPRCWMBiBA5GexzW1MejqaEQK80RRbIcd6uJKsgQCR6A9u4E3yQzw21AKXBzB32pSniSVT++t1DUOb0zkORLE8sYN5y9rdMv1zzlxhE6CRgDJ/VRMZp777uUANcEkEiWTZOZyxJqVCjbHr3aBsKz6vf+1xHergYjcdfm14YpZ5eemegFdP2TJnLqnqb5eHxoq1R7cC9vqlangMs6Hk9by27RIlkeWMxRMLDxX3LrgBQwF+W/Uo5GACpvUyzZUZhrrEFaR4stVXq5woBp6L1wEgV0NjjHyE5dYkrAHj8SDnoS4V9rKJEN7FimKQfP6BhNfM3L1wufJ8iTCLYEau8ZgwRsoijdnNK8nDlka3aedfuR/PZepjz04vpk5GPH+1KpKQILvgLcrcX+0bIvwRaYCQfLtVciU7Xvw7Hz5FyAjJt6Y9cjDfr+7ai7GqRk4gAKWngdMw6KwHrAB0OcHw35bCkUWi/qsBpARG6lefrad1qCeiwSnLVByOQgNzPWS5SKb4YoUy+2t7LIEvmICM+jx9EMF9AWOjgigIiVemhCNSE0fxuK3QJpL7eBIjAiQGoW1M/JeNBW1nhNffknS2qNRXUCexke/OdP4F5zhZC/syqv0wVb/HX4rDij0GhgWMiiRcws1NA+dOyXRsR0SYvkTQ3YlaiDePK4oz3+lxPZj9pC1OoobsjWgPkPjUOu0dBGW6FXQPq1FdIw29/orU3fFsyzjkbYW9GO6lSgINdr0/6QGIykSJHh34bPn8CQHEvxH49eacCATE/P9X4Ce37x+uKa+lcxxWiqeCwwwsj4iAZLrb034Z9qA7DU1Lmpom4VdHu472gXmI26PUwCKMxOT2lcSUTDTQi5KFBM72vO8fPSEU3oOiIb6YbvW2G9i64Y6q7xx0tGtSXSfQPs+6r2vX0N3epiG9rxWCbH0gFsdT4cp2M8RDgRysKSlzaKUMUR6ZqiKTXS+X+TT88SLJ0KmXNNuhc6DtF9eoJXqBVZnsHzpH65Hpso870KIKtm1mBDggkYnYPipLBOnG/01O8pDzmILz1aRp/dg/3W7uKCNqQK8gEDLb asheplyakov@alena
 
 bootcmd:
- - echo 'Acquire::http::proxy "http://192.168.122.1:3128";' > /etc/apt/apt.conf.d/90_use_proxy
- - echo 'APT::Get::AllowUnauthenticated "1";' > /etc/apt/apt.conf.d/90_allow_unsigned_repos
- - echo 'deb http://ru.archive.ubuntu.com/ubuntu trusty          main universe multiverse restricted' > /etc/apt/sources.list
- - echo 'deb http://ru.archive.ubuntu.com/ubuntu trusty-updates  main universe multiverse restricted' >> /etc/apt/sources.list
- - echo 'deb http://ru.archive.ubuntu.com/ubuntu trusty-security main universe multiverse restricted' >> /etc/apt/sources.list
- - echo 'deb http://asheplyakov.srt.mirantis.net/Public/debian/ceph-hammer-trusty trusty main' >> /etc/apt/sources.list
- - "echo 'Package: *' >> /etc/apt/preferences"
- - "echo 'Pin: release l=sa-hammer-trusty' >> /etc/apt/preferences"
- - "echo 'Pin-Priority: 1051' >> /etc/apt/preferences"
+ - echo 'LABEL=MOREVM none swap sw 0 0' >> /etc/fstab
+ - swapon -a || true
  - echo 'nameserver 192.168.122.1' > /etc/resolv.conf
- - echo 10.253.0.1 sahost >> /etc/hosts
- - echo 10.253.0.10 saceph-adm >> /etc/hosts
- - echo 10.253.0.20 saceph-mon >> /etc/hosts
- - echo 10.253.0.22 saceph-mon2 >> /etc/hosts
- - echo 10.253.0.100 saceph-osd1 >> /etc/hosts
- - echo 10.253.0.102 saceph-osd2 >> /etc/hosts
- - echo 10.253.0.104 saceph-osd3 >> /etc/hosts
- - echo 10.253.0.254 saceph-rgw >> /etc/hosts
- - echo 'auto eth1' > /etc/network/interfaces.d/eth1.cfg
- - echo 'iface eth1 inet manual' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'up ip link set up dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'up ip addr add 10.253.0.104/24 brd 10.253.0.255 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'down ip link set down dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - echo 'down ip addr del 10.253.0.104/24 dev eth1' >> /etc/network/interfaces.d/eth1.cfg
- - apt-get update
- - apt-get dist-upgrade -y
- - apt-get install -y haveged ceph-deploy nfs-common libstdc++6-4.8-dbg gdb gdbserver vim-nox git
- - sed -re '/^\/usr\/share\/man/ d' -i /var/lib/dpkg/info/ceph-deploy.list
- - mkdir -m755 -p /media/work
- - "echo '10.253.0.1:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime 0 0' >> /etc/fstab"
 
 write_files:
- - path: /root/.gdbinit
+ - path: /etc/hosts
    permissions: '0644'
    content: |
-     python sys.path.append("/usr/share/gcc-4.8/python")
-     break 'ReplicatedPG::maybe_handle_cache(std::tr1::shared_ptr<OpRequest>, bool, std::tr1::shared_ptr<ObjectContext>, int, hobject_t const&, bool, bool)'
+     127.0.0.1 localhost
+     10.253.0.1 sahost
+     10.253.0.10 saceph-adm
+     10.253.0.20 saceph-mon
+     10.253.0.22 saceph-mon2
+     10.253.0.24 saceph-mon3
+     10.253.0.100 saceph-osd1
+     10.253.0.102 saceph-osd2
+     10.253.0.104 saceph-osd3
+     10.253.0.106 saceph-osd4
+     10.253.0.108 saceph-osd5
+     10.253.0.110 saceph-osd6
+     10.253.0.254 saceph-rgw
+ - path: /etc/apt/sources.list
+   permissions: '0644'
+   content: |
+     deb http://ru.archive.ubuntu.com/ubuntu trusty main universe multiverse restricted
+     deb http://ru.archive.ubuntu.com/ubuntu trusty-updates  main universe multiverse restricted
+     deb http://ru.archive.ubuntu.com/ubuntu trusty-security main universe multiverse restricted
+ - path: /etc/apt/sources.list.d/ceph-hammer-mos-9.0.list
+   permissions: '0644'
+   content: |
+     deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph-hammer-mos-9.0 trusty main
+     deb-src http://asheplyakov.srt.mirantis.net/Public/repos/ceph-hammer-mos-9.0 trusty main
+ - path: /etc/apt/preferences.d/ceph-hammer-mos-9.0.pref
+   permissions: '0644'
+   content: |
+     Package: *
+     Pin: release o=Mirantis, l=hammer
+     Pin-Priority: 1050
+ - path: /etc/apt/apt.conf.d/90_allow_unsigned_repos
+   permissions: '0644'
+   content: |
+     APT::Get::AllowUnauthenticated "1";
+ - path: /etc/apt/apt.conf.d/90_use_proxy
+   permissions: '0644'
+   content: |
+     Acquire::http::proxy "http://192.168.128.1:3128";
+ - path: /etc/network/interfaces.d/eth1.cfg
+   permissions: '0644'
+   content: |
+     auto eth1
+     iface eth1 inet manual
+     up ip link set up dev eth1
+     up ip addr add 10.253.0.104/24 brd 10.253.0.255 dev eth1
+     down ip link set down dev eth1
+     down ip addr del 10.253.0.104/24 dev eth1
 
 apt_preserve_sources_list: True
 
 runcmd:
+ - mkdir -m755 -p /media/work
+ - apt-get update
+ - apt-get dist-upgrade -y
+ - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox
+ - "echo '10.253.0.1:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime 0 0' >> /etc/fstab"
  - dpkg --configure -a
  - "echo ready | nc -w1 sahost 3333"
  - "apt-get purge -y cloud-init && sleep 10 && shutdown -r now"

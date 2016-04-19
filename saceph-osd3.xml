@@ -27,23 +27,35 @@
       <serial>SACEPH_OSD3_OS0001</serial>
       <boot order='1'/>
     </disk>
-    <disk type='block' device='disk'>
-      <driver name='qemu' type='raw'/>
-      <source dev='/dev/wdgreen/saceph-osd3-data'/>
-      <target dev='vdb' bus='virtio'/>
-      <serial>SACEPH_OSD3_DAT001</serial>
-    </disk>
-    <disk type='block' device='disk'>
-      <driver name='qemu' type='raw'/>
-      <source dev='/dev/wdgreen/saceph-osd3-journal'/>
-      <target dev='vdc' bus='virtio'/>
-      <serial>SACEPH_OSD3_JOURNA</serial>
-    </disk>
     <disk type='file' device='cdrom'>
       <driver name='qemu' type='raw'/>
       <source file='/home/asheplyakov/work/ceph/sa-ceph-vms/saceph-osd3-config.iso'/>
-      <target dev='vdd' bus='virtio'/>
+      <target dev='vdb' bus='virtio'/>
       <readonly/>
+    </disk>
+    <disk type='block' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source dev='/dev/wdgreen/saceph-osd5-data'/>
+      <target dev='vdc' bus='virtio'/>
+      <serial>OSD5_DATA</serial>
+    </disk>
+    <disk type='block' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source dev='/dev/wdgreen/saceph-osd5-journal'/>
+      <target dev='vdd' bus='virtio'/>
+      <serial>OSD5_JOURNAL</serial>
+    </disk>
+    <disk type='block' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source dev='/dev/wdgreen/saceph-osd6-data'/>
+      <target dev='vde' bus='virtio'/>
+      <serial>OSD6_DATA</serial>
+    </disk>
+    <disk type='block' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source dev='/dev/wdgreen/saceph-osd6-journal'/>
+      <target dev='vdf' bus='virtio'/>
+      <serial>OSD6_JOURNAL</serial>
     </disk>
     <interface type='network'>
       <mac address='52:54:00:8f:0c:40'/>

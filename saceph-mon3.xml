@@ -29,7 +29,7 @@
     </disk>
     <disk type='file' device='cdrom'>
       <driver name='qemu' type='raw'/>
-      <source file='/home/asheplyakov/work/ceph/sa-ceph-vms/saceph-mon2-config.iso'/>
+      <source file='/home/asheplyakov/work/ceph/sa-ceph-vms/saceph-mon3-config.iso'/>
       <target dev='vdc' bus='virtio'/>
       <readonly/>
     </disk>

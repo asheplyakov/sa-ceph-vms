@@ -10,8 +10,16 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-UBUNTU_IMG="/srv/data/Public/img/trusty-server-cloudimg-amd64-disk1.img.nojournal"
-UBUNTU_IMG_URL="https://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img"
+cd "${0%/*}"
+if [ -f config-drive/common.conf ]; then
+	. config-drive/common.conf
+fi
+if [ -z "$distro_release" ]; then
+	distro_release='xenial'
+fi
+
+UBUNTU_IMG="/srv/data/Public/img/${distro_release}-server-cloudimg-amd64-disk1.img.nojournal"
+UBUNTU_IMG_URL="https://cloud-images.ubuntu.com/${distro_release}/current/${distro_release}-server-cloudimg-amd64-disk1.img"
 
 if [ ! -f "$UBUNTU_IMG" ]; then
 	ORIG_UBUNTU_IMG="${UBUNTU_IMG%.nojournal}"
@@ -28,7 +36,9 @@ if [ ! -f "$UBUNTU_IMG" ]; then
 	set +x
 fi
 
-cd "${0%/*}"
+
+./gen-cloud-conf.sh "$vm"
+
 virsh destroy "$vm" || true
 if ! virsh domid "$vm" >/dev/null 2>&1; then
 	virsh define "${vm}.xml"

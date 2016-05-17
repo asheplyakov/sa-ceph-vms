@@ -36,19 +36,19 @@ write_files:
  - path: /etc/apt/sources.list
    permissions: '0644'
    content: |
-     deb http://ru.archive.ubuntu.com/ubuntu trusty main universe multiverse restricted
-     deb http://ru.archive.ubuntu.com/ubuntu trusty-updates  main universe multiverse restricted
-     deb http://ru.archive.ubuntu.com/ubuntu trusty-security main universe multiverse restricted
- - path: /etc/apt/sources.list.d/ceph-hammer-mos-9.0.list
+     deb http://ru.archive.ubuntu.com/ubuntu @distro_release@ main universe multiverse restricted
+     deb http://ru.archive.ubuntu.com/ubuntu @distro_release@-updates  main universe multiverse restricted
+     deb http://ru.archive.ubuntu.com/ubuntu @distro_release@-security main universe multiverse restricted
+ - path: /etc/apt/sources.list.d/ceph.list
    permissions: '0644'
    content: |
-     deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph-hammer-mos-9.0 trusty main
-     deb-src http://asheplyakov.srt.mirantis.net/Public/repos/ceph-hammer-mos-9.0 trusty main
- - path: /etc/apt/preferences.d/ceph-hammer-mos-9.0.pref
+     deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph @ceph_release@-@distro_release@ main
+     deb-src http://asheplyakov.srt.mirantis.net/Public/repos/ceph @ceph_release@-@distro_release@ main
+ - path: /etc/apt/preferences.d/ceph.pref
    permissions: '0644'
    content: |
      Package: *
-     Pin: release o=Mirantis, l=hammer
+     Pin: release l=sa-@ceph_release@-@distro_release@
      Pin-Priority: 1050
  - path: /etc/apt/apt.conf.d/90_allow_unsigned_repos
    permissions: '0644'
@@ -57,7 +57,7 @@ write_files:
  - path: /etc/apt/apt.conf.d/90_use_proxy
    permissions: '0644'
    content: |
-     Acquire::http::proxy "http://192.168.128.1:3128";
+     Acquire::http::proxy "http://sahost:3128";
  - path: /etc/network/interfaces.d/eth1.cfg
    permissions: '0644'
    content: |
@@ -75,7 +75,7 @@ runcmd:
  - apt-get update
  - apt-get dist-upgrade -y
  - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox
- - "echo '10.253.0.1:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime 0 0' >> /etc/fstab"
+ - "echo 'sahost:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
  - dpkg --configure -a
  - "echo ready | nc -w1 sahost 3333"
  - "apt-get purge -y cloud-init && sleep 10 && shutdown -r now"

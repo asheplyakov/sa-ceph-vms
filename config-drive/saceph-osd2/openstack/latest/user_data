@@ -36,19 +36,19 @@ write_files:
  - path: /etc/apt/sources.list
    permissions: '0644'
    content: |
-     deb http://ru.archive.ubuntu.com/ubuntu trusty main universe multiverse restricted
-     deb http://ru.archive.ubuntu.com/ubuntu trusty-updates  main universe multiverse restricted
-     deb http://ru.archive.ubuntu.com/ubuntu trusty-security main universe multiverse restricted
- - path: /etc/apt/sources.list.d/ceph-hammer-mos-9.0.list
+     deb http://ru.archive.ubuntu.com/ubuntu xenial main universe multiverse restricted
+     deb http://ru.archive.ubuntu.com/ubuntu xenial-updates  main universe multiverse restricted
+     deb http://ru.archive.ubuntu.com/ubuntu xenial-security main universe multiverse restricted
+ - path: /etc/apt/sources.list.d/ceph.list
    permissions: '0644'
    content: |
-     deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph-hammer-mos-9.0 trusty main
-     deb-src http://asheplyakov.srt.mirantis.net/Public/repos/ceph-hammer-mos-9.0 trusty main
- - path: /etc/apt/preferences.d/ceph-hammer-mos-9.0.pref
+     deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph hammer-xenial main
+     deb-src http://asheplyakov.srt.mirantis.net/Public/repos/ceph hammer-xenial main
+ - path: /etc/apt/preferences.d/ceph.pref
    permissions: '0644'
    content: |
      Package: *
-     Pin: release o=Mirantis, l=hammer
+     Pin: release l=sa-hammer-xenial
      Pin-Priority: 1050
  - path: /etc/apt/apt.conf.d/90_allow_unsigned_repos
    permissions: '0644'
@@ -57,7 +57,7 @@ write_files:
  - path: /etc/apt/apt.conf.d/90_use_proxy
    permissions: '0644'
    content: |
-     Acquire::http::proxy "http://192.168.128.1:3128";
+     Acquire::http::proxy "http://sahost:3128";
  - path: /etc/network/interfaces.d/eth1.cfg
    permissions: '0644'
    content: |

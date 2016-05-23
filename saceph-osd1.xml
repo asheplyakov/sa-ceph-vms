@@ -58,11 +58,6 @@
       <serial>OSD2_JOURNAL</serial>
     </disk>
     <interface type='network'>
-      <mac address='52:54:00:ba:bd:59'/>
-      <source network='default'/>
-      <model type='virtio'/>
-    </interface>
-    <interface type='network'>
       <mac address='52:54:00:d0:cf:04'/>
       <source network='saceph-priv'/>
       <model type='virtio'/>

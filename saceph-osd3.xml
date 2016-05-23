@@ -58,11 +58,6 @@
       <serial>OSD6_JOURNAL</serial>
     </disk>
     <interface type='network'>
-      <mac address='52:54:00:8f:0c:40'/>
-      <source network='default'/>
-      <model type='virtio'/>
-    </interface>
-    <interface type='network'>
       <mac address='52:54:00:f8:b7:57'/>
       <source network='saceph-priv'/>
       <model type='virtio'/>

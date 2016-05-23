@@ -10,26 +10,18 @@ if [ -f "config-drive/common.conf" ]; then
 	. config-drive/common.conf
 fi
 
-vm_conf="config-drive/${VM_NAME}.conf"
-if [ ! -f "$vm_conf" ]; then
-	echo "${MYSELF}: no such directory: ${vm_conf}" >&2
-	exit 1
-fi
-
-. "$vm_conf"
-
 _subs () {
 	local vm_name="$1"
 	local part="$2"
 	local template="config-drive/template/openstack/latest/$part"
 	local dst="config-drive/$vm_name/openstack/latest/$part"
+	local my_uuid="`uuidgen`"
 	sed "$template" \
-		-e "s;@my_ip@;${my_ip};g" \
-		-e "s;@net_brd@;${net_brd};g" \
 		-e "s/@my_name@/${vm_name}/g" \
 		-e "s/@my_uuid@/${my_uuid}/g" \
 		-e "s/@distro_release@/${distro_release}/g" \
 		-e "s/@ceph_release@/${ceph_release}/g" \
+		-e "s;@http_proxy@;${http_proxy};g" \
 	> "${dst}.tmp"
 	mv "${dst}.tmp" "$dst"
 }

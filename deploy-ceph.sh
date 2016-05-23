@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
-ADM="saceph-adm.inner"
-MON="saceph-mon.inner saceph-mon2.inner saceph-mon3.inner"
-RGW="saceph-rgw.inner"
-OSDS="saceph-osd1.inner saceph-osd2.inner saceph-osd3.inner"
+ADM="saceph-adm"
+MON="saceph-mon saceph-mon2 saceph-mon3"
+RGW="saceph-rgw"
+OSDS="saceph-osd1 saceph-osd2 saceph-osd3"
 
 mkdir -p -m 0755 ~/.ssh
 if [ -f ~/.ssh/known_hosts ]; then

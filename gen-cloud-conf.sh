@@ -10,11 +10,15 @@ if [ -f "config-drive/common.conf" ]; then
 	. config-drive/common.conf
 fi
 
+top_build_dir="${MY_DIR}/.build/config-drive"
+template_dir="${MY_DIR}/config-drive/template"
+
+
 _subs () {
 	local vm_name="$1"
 	local part="$2"
-	local template="config-drive/template/openstack/latest/$part"
-	local dst="config-drive/$vm_name/openstack/latest/$part"
+	local template="$template_dir/openstack/latest/$part"
+	local dst="$top_build_dir/$vm_name/openstack/latest/$part"
 	local my_uuid="`uuidgen`"
 	sed "$template" \
 		-e "s/@my_name@/${vm_name}/g" \
@@ -26,12 +30,24 @@ _subs () {
 	mv "${dst}.tmp" "$dst"
 }
 
+_make_alt_copy () {
+	local vm_name="$1"
+	local alt_data_dir="$top_build_dir/$vm_name/openstack/2012-08-10"
+	local data_dir="$top_build_dir/$vm_name/openstack/latest"
+	mkdir -p "$alt_data_dir"
+	cp -a --target-directory="$alt_data_dir" \
+		"$data_dir/user_data" \
+		"$data_dir/meta_data.json"
+}
+
 genconf () {
 	local vm_name="$1"
-	local dst_dir="config-drive/$vm_name/openstack/latest"
+	local dst_dir="$top_build_dir/$vm_name/openstack/latest"
 	mkdir -p "$dst_dir"
 	_subs "$vm_name" user_data
 	_subs "$vm_name" meta_data.json
+	_make_alt_copy "$vm_name"
+
 }
 
 genconf "$VM_NAME"

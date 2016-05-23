@@ -14,41 +14,28 @@ ssh_authorized_keys:
 bootcmd:
  - echo 'LABEL=MOREVM none swap sw 0 0' >> /etc/fstab
  - swapon -a || true
- - echo 'nameserver 192.168.122.1' > /etc/resolv.conf
 
 write_files:
  - path: /etc/hosts
    permissions: '0644'
    content: |
      127.0.0.1 localhost
-     10.253.0.1 sahost
-     10.253.0.10 saceph-adm.inner
-     10.253.0.20 saceph-mon.inner
-     10.253.0.22 saceph-mon2.inner
-     10.253.0.24 saceph-mon3.inner
-     10.253.0.100 saceph-osd1.inner
-     10.253.0.102 saceph-osd2.inner
-     10.253.0.104 saceph-osd3.inner
-     10.253.0.106 saceph-osd4.inner
-     10.253.0.108 saceph-osd5.inner
-     10.253.0.110 saceph-osd6.inner
-     10.253.0.254 saceph-rgw.inner
  - path: /etc/apt/sources.list
    permissions: '0644'
    content: |
-     deb http://ru.archive.ubuntu.com/ubuntu xenial main universe multiverse restricted
-     deb http://ru.archive.ubuntu.com/ubuntu xenial-updates  main universe multiverse restricted
-     deb http://ru.archive.ubuntu.com/ubuntu xenial-security main universe multiverse restricted
+     deb http://ru.archive.ubuntu.com/ubuntu trusty main universe multiverse restricted
+     deb http://ru.archive.ubuntu.com/ubuntu trusty-updates  main universe multiverse restricted
+     deb http://ru.archive.ubuntu.com/ubuntu trusty-security main universe multiverse restricted
  - path: /etc/apt/sources.list.d/ceph.list
    permissions: '0644'
    content: |
-     deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph hammer-xenial main
-     deb-src http://asheplyakov.srt.mirantis.net/Public/repos/ceph hammer-xenial main
+     deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph jewel-trusty main universe
+     deb-src http://asheplyakov.srt.mirantis.net/Public/repos/ceph jewel-trusty main universe
  - path: /etc/apt/preferences.d/ceph.pref
    permissions: '0644'
    content: |
      Package: *
-     Pin: release l=sa-hammer-xenial
+     Pin: release l=sa-jewel-trusty
      Pin-Priority: 1050
  - path: /etc/apt/apt.conf.d/90_allow_unsigned_repos
    permissions: '0644'
@@ -58,15 +45,16 @@ write_files:
    permissions: '0644'
    content: |
      Acquire::http::proxy "http://sahost:3128";
- - path: /etc/network/interfaces.d/eth1.cfg
+ - path: /etc/opt/ceph.hosts
    permissions: '0644'
    content: |
-     auto eth1
-     iface eth1 inet manual
-     up ip link set up dev eth1
-     up ip addr add 10.253.0.10/24 brd 10.253.0.255 dev eth1
-     down ip link set down dev eth1
-     down ip addr del 10.253.0.10/24 dev eth1
+     saceph-mon
+     saceph-mon2
+     saceph-mon3
+     saceph-osd1
+     saceph-osd2
+     saceph-osd3
+     saceph-rgw
 
 apt_preserve_sources_list: True
 
@@ -74,8 +62,8 @@ runcmd:
  - mkdir -m755 -p /media/work
  - apt-get update
  - apt-get dist-upgrade -y
- - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox
- - "echo '10.253.0.1:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime 0 0' >> /etc/fstab"
+ - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox mussh
+ - "echo 'sahost:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
  - dpkg --configure -a
  - "echo ready | nc -w1 sahost 3333"
  - "apt-get purge -y cloud-init && sleep 10 && shutdown -r now"

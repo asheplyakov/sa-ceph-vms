@@ -1,25 +1,19 @@
 #!/bin/sh
 set -e
-vmname="$1"
+vm_name="$1"
 
 MYSELF="${0##*/}"
-if [ -z "$vmname" ]; then
+if [ -z "$vm_name" ]; then
 	echo "*** $MYNAME: Error: no vm name has been specified" >&2
 	exit 1
 fi
 
 cd "${0%/*}"
-data_dir="openstack/latest"
-alt_data_dir="openstack/2012-08-10"
+build_dir=".build/config-drive/$vm_name"
+./gen-cloud-conf.sh $vm_name
 
-
-if [ ! -d "config-drive/$vmname/$alt_data_dir" ]; then
-	mkdir -p "config-drive/$vmname/$alt_data_dir"
-fi
-rsync -avH --delete "config-drive/$vmname/${data_dir}/" "config-drive/$vmname/${alt_data_dir}/"
-
-exec genisoimage -output "${vmname}-config.iso" \
+exec genisoimage -output "${vm_name}-config.iso" \
 	-input-charset utf-8 \
 	-volid config-2 \
 	-joliet -rock \
-	"config-drive/$vmname"
+	"${build_dir}"

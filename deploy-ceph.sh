@@ -6,17 +6,9 @@ RGW="saceph-rgw"
 OSDS="saceph-osd1 saceph-osd2 saceph-osd3"
 
 mkdir -p -m 0755 ~/.ssh
-if [ -f ~/.ssh/known_hosts ]; then
-for node in $MON $OSDS $ADM $RGW; do
-	# There might be several entries (why?)
-	for n in 1 2 3; do
-		ssh-keygen -f ~/.ssh/known_hosts -R "$node"
-	done
-done
-fi
 for node in $MON $OSDS $ADM; do
 	ssh-keyscan -t rsa $node
-done >> ~/.ssh/known_hosts
+done > ~/.ssh/known_hosts
 
 ceph-deploy --overwrite-conf purge $MON $OSDS $ADM
 ceph-deploy --overwrite-conf purgedata  $MON $OSDS $ADM

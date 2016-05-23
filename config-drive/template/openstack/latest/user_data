@@ -45,6 +45,16 @@ write_files:
    permissions: '0644'
    content: |
      Acquire::http::proxy "http://sahost:3128";
+ - path: /etc/opt/ceph.hosts
+   permissions: '0644'
+   content: |
+     saceph-mon
+     saceph-mon2
+     saceph-mon3
+     saceph-osd1
+     saceph-osd2
+     saceph-osd3
+     saceph-rgw
 
 apt_preserve_sources_list: True
 
@@ -52,7 +62,7 @@ runcmd:
  - mkdir -m755 -p /media/work
  - apt-get update
  - apt-get dist-upgrade -y
- - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox
+ - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox mussh
  - "echo 'sahost:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
  - dpkg --configure -a
  - "echo ready | nc -w1 sahost 3333"

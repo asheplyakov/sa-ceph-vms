@@ -29,8 +29,8 @@ write_files:
  - path: /etc/apt/sources.list.d/ceph.list
    permissions: '0644'
    content: |
-     deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph @ceph_release@-@distro_release@ main
-     deb-src http://asheplyakov.srt.mirantis.net/Public/repos/ceph @ceph_release@-@distro_release@ main
+     deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph @ceph_release@-@distro_release@ main universe
+     deb-src http://asheplyakov.srt.mirantis.net/Public/repos/ceph @ceph_release@-@distro_release@ main universe
  - path: /etc/apt/preferences.d/ceph.pref
    permissions: '0644'
    content: |

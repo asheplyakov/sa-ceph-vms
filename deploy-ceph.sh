@@ -39,3 +39,15 @@ done
 ceph-deploy admin $ADM $MON $OSDS
 
 ceph health
+
+# compatibility with in-kernel (Linux 3.13) RBD client
+ceph osd getcrushmap -o crush.bak
+crushtool -i crush.bak -o crush.new --set-chooseleaf-vary-r 0
+ceph osd setcrushmap -i crush.new
+
+cat >> /etc/ceph/ceph.conf <<-EOF
+
+[client]
+rbd default features = 3
+
+EOF

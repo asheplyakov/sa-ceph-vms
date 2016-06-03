@@ -18,8 +18,22 @@ def get_vm_harddrives(vmname):
     disks_xml = vmxml.findall("devices/disk[@device='disk']")
     # Get the backing (host) device from the virtual HD description
     #     <source dev='/dev/wdgreen/saceph-mon-os'/>
-    host_disks = [dxml.findall('source')[0].get('dev') for dxml in disks_xml]
-    return host_disks
+
+    def get_host_bdev_or_file(dxml):
+        # <source dev='/dev/wdgreen/saceph-mon-os'/>
+        # <source file='/srv/libvirt/images/saceph-mon-os.qcow2'/>
+        # <source pool='foo' volume='bar'/>
+        src_xml = dxml.findall('source')[0]
+        pool = src_xml.get('pool')
+        volume = src_xml.get('volume')
+        if pool:
+            hfile = subprocess.check_output(['virsh', 'vol-path',
+                                             '--pool', pool, volume]).strip()
+        else:
+            hfile = src_xml.get('dev') or src_xml.get('file')
+        return hfile
+
+    return [get_host_bdev_or_file(dxml) for dxml in disks_xml]
 
 
 def main():

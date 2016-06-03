@@ -48,7 +48,7 @@ vm_drives="`./get-vm-harddrives $vm`"
 vm_hdd=''
 for hd in $vm_drives; do
 	case $hd in
-		*-os)
+		*-os|*-os.img)
 			vm_hdd="$hd"
 			;;
 	esac
@@ -60,7 +60,17 @@ if [ -z "$vm_hdd" ]; then
 fi
 
 sudo chgrp adm "$vm_hdd"
-dd if=/dev/zero of="$vm_hdd" bs=1M count=32
+case "$vm_hdd" in
+	/dev/*)
+		# dd if=/dev/zero of="$vm_hdd" bs=1M count=32
+		;;
+	*)
+		echo "clean qcow2 img $vm_hdd" >&2
+		size=$(qemu-img info "$vm_hdd" | sed -rne 's/virtual size:\s*[0-9]+[TGM]\s+[(]([0-9]+)\s*.*$/\1/p')
+		rm -f $vm_hdd
+		qemu-img create -f qcow2 -o size=$size "$vm_hdd"
+		;;
+esac
 
 provision_vm () {
 	local vm_hdd="$1"

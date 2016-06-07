@@ -44,7 +44,7 @@ write_files:
  - path: /etc/apt/apt.conf.d/90_use_proxy
    permissions: '0644'
    content: |
-     Acquire::http::proxy "http://sahost:3128";
+     Acquire::http::proxy "@http_proxy@";
  - path: /etc/opt/ceph.hosts
    permissions: '0644'
    content: |

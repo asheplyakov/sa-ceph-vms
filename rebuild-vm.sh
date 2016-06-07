@@ -48,16 +48,9 @@ maybe_shutdown () {
 	esac
 }
 
-vm_drives="`./get-vm-harddrives $vm`"
-vm_hdd=''
-for hd in $vm_drives; do
-	case $hd in
-		*-os|*-os.img)
-			vm_hdd="$hd"
-			;;
-	esac
-done
 
+# LVs for OS installation are named '*-os'
+vm_hdd="`./get-vm-harddrives -f '*-os' $vm`"
 if [ -z "$vm_hdd" ]; then
 	echo "${MYSELF}: could not find VM hdd backing device" >&2
 	exit 1

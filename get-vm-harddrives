@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
+import glob
 import subprocess
 import sys
+from optparse import OptionParser
 from xml.etree import ElementTree
 
 
-def get_vm_harddrives(vmname):
+def get_vm_harddrives(vmname, host_path_filter=None):
     vmxml_str = subprocess.check_output(['virsh', 'dumpxml', vmname])
     vmxml = ElementTree.fromstring(vmxml_str)
     # Extract virtual hard drives list (excluding CD-ROMs) from libvirt XML
@@ -33,16 +35,26 @@ def get_vm_harddrives(vmname):
             hfile = src_xml.get('dev') or src_xml.get('file')
         return hfile
 
-    return [get_host_bdev_or_file(dxml) for dxml in disks_xml]
+    bdevs = [get_host_bdev_or_file(dxml) for dxml in disks_xml]
+    if host_path_filter:
+        return glob.fnmatch.filter(bdevs, host_path_filter)
+    else:
+        return bdevs
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: get-vm-harddrives <VM-name>")
+    parser = OptionParser()
+    parser.add_option('-f', dest='path_filter',
+                      help='show only drives having the host path '
+                      'matching the specified pattern')
+    options, args = parser.parse_args()
+    if len(args) < 1:
+        print("Usage: get-vm-harddrives <VM-name> [-f filter]")
         sys.exit(1)
-    vmname = sys.argv[1]
-    host_devices = get_vm_harddrives(vmname)
-    print('\n'.join(host_devices))
+    for vmname in args:
+        host_devices = get_vm_harddrives(vmname,
+                                         host_path_filter=options.path_filter)
+        print('\n'.join(host_devices))
     sys.exit(0)
 
 

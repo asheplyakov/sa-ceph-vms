@@ -50,5 +50,19 @@ genconf () {
 
 }
 
-genconf "$VM_NAME"
+mkconfigdrive() {
+	local vm_name="$1"
+	local build_dir="$top_build_dir/$vm_name"
+	local iso="${vm_name}-config.iso"
+	genconf "$vm_name"
+	genisoimage -quiet \
+		-output "${iso}.tmp" \
+		-input-charset utf-8 \
+		-volid 'config-2' \
+		-joliet -rock \
+		"${build_dir}"
+	mv "${iso}.tmp" "$iso"
+}
+
+mkconfigdrive "$VM_NAME"
 

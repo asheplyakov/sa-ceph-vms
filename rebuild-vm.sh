@@ -30,10 +30,6 @@ if [ ! -f "$UBUNTU_IMG" ]; then
 	mv "${UBUNTU_IMG}.tmp" "${UBUNTU_IMG}"
 fi
 
-
-./gen-cloud-conf.sh "$vm"
-./mkconfdrive "$vm"
-
 maybe_shutdown () {
 	local state=''
 	if ! virsh domid "$vm" >/dev/null 2>&1; then
@@ -48,6 +44,7 @@ maybe_shutdown () {
 	esac
 }
 
+./gen-cloud-conf.sh "$vm"
 
 # LVs for OS installation are named '*-os'
 vm_hdd="`./get-vm-harddrives -f '*-os' $vm`"

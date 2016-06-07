@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 MYSELF="${0##*/}"
-CALLBACK_PORT=3333
 
 vm="$1"
 
@@ -59,10 +58,4 @@ maybe_shutdown
 virsh start $vm
 echo "${MYSELF}: waiting for $vm to call back" >&2
 
-nc -l -p $CALLBACK_PORT | while read line; do
-	if [ "$line" != "ready" ]; then
-		echo "${MYSELF}: failed to rebuild VM $vm" >&2
-		exit 1
-	fi
-done
-
+exec ./web-callback-provision.py -m "$vm"

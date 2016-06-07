@@ -26,6 +26,8 @@ _subs () {
 		-e "s/@distro_release@/${distro_release}/g" \
 		-e "s/@ceph_release@/${ceph_release}/g" \
 		-e "s;@http_proxy@;${http_proxy};g" \
+		-e "s;@host_name@;${host_name};g" \
+		-e "s;@host_web_callback_port@;${host_web_callback_port};g" \
 	> "${dst}.tmp"
 	mv "${dst}.tmp" "$dst"
 }

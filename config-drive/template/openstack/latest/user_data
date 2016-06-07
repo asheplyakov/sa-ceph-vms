@@ -65,5 +65,13 @@ runcmd:
  - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox mussh
  - "echo 'sahost:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
  - dpkg --configure -a
- - "echo ready | nc -w1 sahost 3333"
- - "apt-get purge -y cloud-init && sleep 10 && shutdown -r now"
+ - "apt-get purge -y cloud-init"
+
+phone_home:
+  url: http://@host_name@:@host_web_callback_port@/
+  post: [ hostname, pub_key_rsa ]
+
+power_state:
+  mode: reboot
+  message: Rebooting
+  condition: True

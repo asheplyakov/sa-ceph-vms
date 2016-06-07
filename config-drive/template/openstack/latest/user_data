@@ -62,7 +62,7 @@ runcmd:
  - mkdir -m755 -p /media/work
  - apt-get update
  - apt-get dist-upgrade -y
- - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox mussh
+ - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox mussh ceph
  - "echo 'sahost:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
  - dpkg --configure -a
  - "apt-get purge -y cloud-init"

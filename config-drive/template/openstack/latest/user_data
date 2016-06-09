@@ -26,6 +26,11 @@ write_files:
      deb http://ru.archive.ubuntu.com/ubuntu @distro_release@ main universe multiverse restricted
      deb http://ru.archive.ubuntu.com/ubuntu @distro_release@-updates  main universe multiverse restricted
      deb http://ru.archive.ubuntu.com/ubuntu @distro_release@-security main universe multiverse restricted
+ - path: /etc/apt/sources.list.d/ansible-ansible-@distro_release@.list
+   permissions: '0644'
+   content: |
+     deb http://ppa.launchpad.net/ansible/ansible/ubuntu @distro_release@ main
+     # deb-src http://ppa.launchpad.net/ansible/ansible/ubuntu @distro_release@ main
  - path: /etc/apt/sources.list.d/ceph.list
    permissions: '0644'
    content: |
@@ -53,6 +58,14 @@ write_files:
      stop on RUNLEVEL [!12345]
      respawn
      exec /sbin/getty -L 115200 ttyS0 vt102
+ - path: /usr/local/sbin/zap-ceph-disks
+   permissions: '0755'
+   content: |
+     #!/bin/sh
+     for disk in /dev/disk/by-label/*_DATA /dev/disk/by-label/*_JOURNAL; do
+            parted --script "$disk" mklabel gpt
+            blockdev --rereadpt "$disk"
+     done
  - path: /etc/opt/ceph.hosts
    permissions: '0644'
    content: |
@@ -70,9 +83,10 @@ runcmd:
  - mkdir -m755 -p /media/work
  - apt-get update
  - apt-get dist-upgrade -y
- - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox mussh ceph
+ - apt-get install -y haveged ceph-deploy nfs-common gdbserver vim-nox mussh ceph parted ansible
  - "echo 'sahost:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
  - dpkg --configure -a
+ - /usr/local/sbin/zap-ceph-disks
  - "apt-get purge -y cloud-init"
 
 phone_home:

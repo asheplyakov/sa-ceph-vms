@@ -4,6 +4,9 @@ import os
 import subprocess
 from xml.etree import ElementTree
 
+DEFAULT_LIBVIRT_CONN = 'qemu:///system'
+KNOWN_HOSTS_FILE = os.path.expanduser('~/.ssh/known_hosts')
+
 
 def _get_device_mac(net_dev_xml):
     mac_node = net_dev_xml.find('mac')
@@ -44,35 +47,113 @@ def _get_leased_ip_by_mac(mac, leases_file_name):
     return None
 
 
-def _get_device_ip(net_dev_xml):
+def _get_iface_ip(net_dev_xml, conn=DEFAULT_LIBVIRT_CONN):
     mac = _get_device_mac(net_dev_xml)
     source_net = _get_source_network(net_dev_xml)
+    domain_name = get_libvirt_net_domain(source_net, conn=conn)
     leases_file_name = _get_leases_file_name(source_net)
-    return _get_leased_ip_by_mac(mac, leases_file_name)
+    ip = _get_leased_ip_by_mac(mac, leases_file_name)
+    return (ip, domain_name)
 
 
-def _get_domain_ips(dom_xml):
-    net_devices = _enumerate_network_devices(dom_xml)
-    return (ip for ip in (_get_device_ip(dev) for dev in net_devices)
-            if ip is not None)
+def _make_fqdn(vm_name, domain_name=None):
+    if domain_name:
+        return '{0}.{1}'.format(vm_name, domain_name)
+    else:
+        return vm_name
 
 
-def get_domain_ips(name, conn=None):
-    if conn is None:
-        conn = 'qemu:///system'
+def _get_vm_ips(dom_xml, conn=DEFAULT_LIBVIRT_CONN):
+    net_devices_xml = _enumerate_network_devices(dom_xml)
+    vm_name = dom_xml.find('name').text
+    for dev_xml in net_devices_xml:
+        ip, domain_name = _get_iface_ip(dev_xml, conn=conn)
+        yield (ip, _make_fqdn(vm_name, domain_name=domain_name))
+
+
+def get_libvirt_net_domain(net_name, conn='qemu:///system'):
+    out = subprocess.check_output(['virsh', '-c', conn,
+                                   'net-dumpxml', net_name])
+    # <network connections='1'>
+    #   <name>saceph-priv</name>
+    #   <uuid>f231c38f-da75-4977-8928-95be84f9953a</uuid>
+    #   <bridge name='br-saceph-priv' stp='on' delay='0'/>
+    #   <mac address='52:54:00:b2:7f:37'/>
+    #   <domain name='vm.ceph.asheplyakov'/>
+    #   <ip address='10.253.0.1' netmask='255.255.255.0'>
+    #      <dhcp>
+    #         <range start='10.253.0.10' end='10.253.0.254'/>
+    #      </dhcp>
+    #   </ip>
+    # </network>
+    net_xml = ElementTree.fromstring(out.strip())
+    try:
+        domain_xml = net_xml.findall('domain')[0]
+        return domain_xml.get('name')
+    except IndexError:
+        return None
+
+
+def get_vm_ips(name, conn='qemu:///system'):
     out = subprocess.check_output(['virsh', '-c', conn, 'dumpxml', name])
     dom_xml = ElementTree.fromstring(out)
-    return _get_domain_ips(dom_xml)
+    return _get_vm_ips(dom_xml, conn=conn)
 
 
-def update_known_hosts(ips=None, hostname=None, ssh_key=None):
+def destroy_vm(name, conn='qemu:///system'):
+    state = subprocess.check_output(['virsh', '-c', conn, 'domstate', name])
+    if state.strip() == 'running':
+        remove_vm_ssh_keys(vm_name=name)
+        subprocess.check_call(['virsh', '-c', conn, 'destroy', name])
+
+
+def start_vm(name, conn='qemu:///system'):
+    subprocess.check_call(['virsh', '-c', conn, 'start', name])
+
+
+def check_ssh_known_host(name_or_ip, known_hosts_file=KNOWN_HOSTS_FILE):
+    """Check if the known_hosts_file contains ssh key of the given host"""
+    try:
+        subprocess.check_call(['ssh-keygen', '-F', name_or_ip,
+                               '-f', known_hosts_file])
+        return True
+    except subprocess.CalledProcessError as e:
+        if e.returncode == 1:
+            return False
+        else:
+            raise
+
+
+def remove_ssh_known_host(name_or_ip, known_hosts_file=KNOWN_HOSTS_FILE):
+    """Remove ssh keys of the given host from known_hosts_file"""
+    if not known_hosts_file:
+        known_hosts_file = os.path.expanduser('~/.ssh/known_hosts')
+    while check_ssh_known_host(name_or_ip, known_hosts_file=known_hosts_file):
+        subprocess.call(['ssh-keygen', '-f', known_hosts_file,
+                         '-R', name_or_ip])
+
+
+def update_known_hosts(ips=None, vm_name=None, ssh_key=None,
+                       known_hosts_file=KNOWN_HOSTS_FILE):
     if ips is None:
-        ips = list(get_domain_ips(hostname))
-    known_hosts_file = os.path.expanduser('~/.ssh/known_hosts')
-    for addr in ips:
-        subprocess.call(['ssh-keygen', '-f', known_hosts_file, '-R', addr])
+        ips = list(get_vm_ips(vm_name))
+    for ip, fqdn in ips:
+        # wipe out the old key (if any)
+        remove_ssh_known_host(fqdn)
+        # Remove entries having the same IP just in a case. Note that
+        # addr might be None for several reasons (VM is down at the moment,
+        # network configuration is still in progress, etc)
+        if ip:
+            remove_ssh_known_host(ip)
 
     if ssh_key:
         with open(known_hosts_file, 'a') as f:
-            for addr in ips:
-                f.write('{0},{1} {2}\n'.format(hostname, addr, ssh_key))
+            for addr, fqdn in ips:
+                f.write('{fqdn} {key}\n'.format(fqdn=fqdn, key=ssh_key))
+            f.flush()
+
+
+def remove_vm_ssh_keys(ips=None, vm_name=None,
+                       known_hosts_file=KNOWN_HOSTS_FILE):
+    update_known_hosts(ips=ips, vm_name=vm_name, ssh_key=None,
+                       known_hosts_file=known_hosts_file)

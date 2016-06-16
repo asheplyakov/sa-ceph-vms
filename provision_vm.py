@@ -10,6 +10,7 @@ from optparse import OptionParser
 SWAP_MB = 4096
 SWAP_LABEL = 'MOREVM'
 BDEV_GROUP = 'adm'
+HOST_PATH_FILTER = '*-os'
 
 
 def _provision(vdisk, img=None,
@@ -36,7 +37,8 @@ def _provision(vdisk, img=None,
     deactivate_partitions(vdisk)
 
 
-def provision(vdisks, img=None,
+def provision(vdisks,
+              img=None,
               swap_size=SWAP_MB * 1024 * 2,
               swap_label=SWAP_LABEL):
     verify_raw_image(img)
@@ -206,22 +208,28 @@ def fixup_vdisk_ownership(vdisk):
 
 def main():
     parser = OptionParser()
+    parser.add_option('-n', '--vm-names', dest='vm_names', action='store_true',
+                      default=False, help='libvirt domains to provision')
     parser.add_option('-i', dest='image', help='source image, must be raw')
-    parser.add_option('-d', dest='vdisk', help='destination LV')
     parser.add_option('-l', '--swap-label', dest='swap_label',
                       default=SWAP_LABEL,
                       help='swap partition label')
     parser.add_option('-s', '--swap-size', dest='swap_size', type=int,
                       default=SWAP_MB,
                       help='swap size in MBs')
+    parser.add_option('-f', '--host-path-filter', dest='host_path_filter',
+                      default=HOST_PATH_FILTER,
+                      help='filter to search the OS vdisk')
     options, args = parser.parse_args()
-    if (not options.image) or (not options.vdisk):
+    if (not options.image) or len(args) == 0:
         print("image and vdisk parameters are mandatory")
         sys.exit(1)
-    provision(options.vdisk.split(','),
+    provision(args,
+              vm_names=options.vm_names,
               img=options.image,
               swap_size=options.swap_size * 1024 * 2,
-              swap_label=options.swap_label)
+              swap_label=options.swap_label,
+              host_path_filter=options.host_path_filter)
     sys.exit(0)
 
 

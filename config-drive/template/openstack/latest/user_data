@@ -70,7 +70,8 @@ runcmd:
  - "echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections"
  - apt-get update
  - apt-get dist-upgrade -y
- - apt-get install -y haveged nfs-common gdbserver vim-nox ceph parted
+ - "echo 'kexec-tools kexec-tools/load_kexec boolean true' | debconf-set-selections"
+ - apt-get install -y haveged kexec-tools nfs-common gdbserver vim-nox ceph parted
  - "echo 'sahost:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
  - dpkg --configure -a
  - /usr/local/sbin/zap-ceph-disks

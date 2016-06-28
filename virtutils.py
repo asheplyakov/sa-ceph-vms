@@ -100,11 +100,48 @@ def get_vm_ips(name, conn='qemu:///system'):
     return _get_vm_ips(dom_xml, conn=conn)
 
 
-def destroy_vm(name, conn='qemu:///system'):
-    state = subprocess.check_output(['virsh', '-c', conn, 'domstate', name])
+def vm_exists(vm_name, conn='qemu:///system'):
+    try:
+        subprocess.check_output(['virsh', '-c', conn, 'domstate', vm_name])
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
+def define_vm(vm_xml=None, raw_vm_xml=None, conn='qemu:///system'):
+    if raw_vm_xml is None:
+        raw_vm_xml = ElementTree.tostring(vm_xml)
+    else:
+        vm_xml = ElementTree.fromstring(raw_vm_xml)
+    vm_name = vm_xml.find('name').text
+    destroy_vm(vm_name, conn=conn, undefine=True)
+    proc = subprocess.Popen(['virsh', '-c', conn, 'define', '/dev/stdin'],
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    try:
+        out, err = proc.communicate(input=raw_vm_xml)
+    except subprocess.CallledProcessError:
+        print("define_vm: error: %s" % str(err))
+        raise
+
+
+def destroy_vm(name, conn='qemu:///system', undefine=False):
+    try:
+        cmd = ['virsh', '-c', conn, 'domstate', name]
+        state = subprocess.check_output(cmd).strip()
+    except subprocess.CalledProcessError:
+        # OK, no such VM
+        return
     if state.strip() == 'running':
         remove_vm_ssh_keys(vm_name=name)
         subprocess.check_call(['virsh', '-c', conn, 'destroy', name])
+    if undefine:
+        subprocess.check_call(['virsh', '-c', conn, 'undefine', name])
+
+
+def destroy_undefine_vm(name, conn='qemu:///system'):
+    destroy_vm(name, conn=conn, undefine=True)
 
 
 def start_vm(name, conn='qemu:///system'):

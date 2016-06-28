@@ -51,16 +51,6 @@ write_files:
      stop on RUNLEVEL [!12345]
      respawn
      exec /sbin/getty -L 115200 ttyS0 vt102
- - path: /usr/local/sbin/zap-ceph-disks
-   permissions: '0755'
-   content: |
-     #!/bin/sh
-     for disk in /dev/disk/by-id/*_DATA /dev/disk/by-id/*_JOURNAL; do
-            dd if=/dev/zero of="$disk" bs=1M count=32 conv=fsync
-            parted --script "$disk" mklabel gpt
-            blockdev --rereadpt "$disk"
-     done
-
 
 apt_preserve_sources_list: True
 
@@ -74,7 +64,6 @@ runcmd:
  - apt-get install -y haveged kexec-tools nfs-common gdbserver vim-nox ceph parted
  - "echo 'sahost:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
  - dpkg --configure -a
- - /usr/local/sbin/zap-ceph-disks
  - "apt-get purge -y cloud-init"
 
 phone_home:

@@ -7,13 +7,16 @@ import subprocess
 import sys
 from optparse import OptionParser
 
+from miscutils import padded
+
 SWAP_MB = 4096
 SWAP_LABEL = 'MOREVM'
+CONFIG_DRIVE_MB = 4
 BDEV_GROUP = 'adm'
-HOST_PATH_FILTER = '*-os'
 
 
 def _provision(vdisk, img=None,
+               config_drive_img=None,
                swap_size=None,
                swap_label=None,
                orig_size=None,
@@ -26,12 +29,17 @@ def _provision(vdisk, img=None,
     partition_vhd(vdisk,
                   root_start=first_partition_offset,
                   swap_size=swap_size,
+                  config_drive_size=CONFIG_DRIVE_MB * 1024 * 2,
                   min_root_size=orig_size)
     copy_boot_loader(vdisk, img=img,
                      first_partition_offset=first_partition_offset)
     activate_partitions(vdisk)
     rootdev = '{0}1'.format(vdisk)
     clone_rootfs(rootdev, img=img, offset=first_partition_offset)
+    if config_drive_img:
+        config_drive_dev = '{0}3'.format(vdisk)
+        copy_config_drive(config_drive_img, config_drive_dev)
+
     swapdev = '{0}2'.format(vdisk)
     run_mkswap(swapdev, '-f', '-L', swap_label)
     deactivate_partitions(vdisk)
@@ -39,12 +47,15 @@ def _provision(vdisk, img=None,
 
 def provision(vdisks,
               img=None,
+              config_drives=None,
               swap_size=SWAP_MB * 1024 * 2,
               swap_label=SWAP_LABEL):
     verify_raw_image(img)
     orig_size, first_partition_offset = guess_first_partition_size_offset(img)
-    for vdisk in vdisks:
+
+    for vdisk, config_drive_img in zip(vdisks, padded(config_drives)):
         _provision(vdisk, img=img,
+                   config_drive_img=config_drive_img,
                    orig_size=orig_size,
                    first_partition_offset=first_partition_offset,
                    swap_size=swap_size,
@@ -76,16 +87,18 @@ def copy_boot_loader(vdisk, img=None,
 def partition_vhd(vdisk,
                   root_start=None,
                   swap_size=None,
-                  min_root_size=None):
+                  min_root_size=None,
+                  config_drive_size=None):
     vdisk = get_dm_lv_name(vdisk)
     disk_size = subprocess.check_output(['blockdev', '--getsz', vdisk])
     disk_size = int(disk_size.strip())
-    min_disk_size = swap_size + min_root_size + root_start
+    min_disk_size = swap_size + min_root_size + root_start + config_drive_size
     if disk_size < min_disk_size:
         raise RuntimeError("disk too small: {0}s < {1}s".format(disk_size,
                                                                 min_disk_size))
-    root_size = disk_size - root_start - swap_size
+    root_size = disk_size - root_start - swap_size - config_drive_size
     swap_start = root_start + root_size
+    config_drive_start = swap_start + swap_size
     subprocess.check_call(['dd', 'if=/dev/zero', 'of=%s' % vdisk,
                            'bs=1M', 'count=1', 'conv=fsync'])
     sfdisk = subprocess.Popen(['sfdisk', '-u', 'S', vdisk],
@@ -95,14 +108,17 @@ def partition_vhd(vdisk,
     partition_table_tpl = """
     {vdisk}1 : start= {root_start}, size= {root_size}, Id=83, bootable
     {vdisk}2 : start= {swap_start}, size= {swap_size}, Id=82
-    {vdisk}3 : start= 0, size= 0, Id= 0
+    {vdisk}3 : start= {config_drive_start}, size= {config_drive_size}, Id=83
     {vdisk}4 : start= 0, size= 0, Id= 0
     """
-    partition_table = partition_table_tpl.format(vdisk=vdisk,
-                                                 root_start=root_start,
-                                                 root_size=root_size,
-                                                 swap_size=swap_size,
-                                                 swap_start=swap_start)
+    partition_table = partition_table_tpl.format(
+        vdisk=vdisk,
+        root_start=root_start,
+        root_size=root_size,
+        swap_size=swap_size,
+        swap_start=swap_start,
+        config_drive_start=config_drive_start,
+        config_drive_size=config_drive_size)
 
     try:
         out, err = sfdisk.communicate(partition_table)
@@ -206,30 +222,34 @@ def fixup_vdisk_ownership(vdisk):
         subprocess.check_call(['sudo', 'chgrp', BDEV_GROUP, bdev])
 
 
+def run_dd(src, dst, **kwargs):
+    cmd = ['dd', 'if=%s' % src, 'of=%s' % dst]
+    cmd.extend('{0}={1}'.format(k, v) for k, v in kwargs.iteritems())
+    subprocess.check_call(cmd)
+
+
+def copy_config_drive(src, dst):
+    run_dd(src, dst, bs='512c', conv='fsync')
+
+
 def main():
     parser = OptionParser()
-    parser.add_option('-n', '--vm-names', dest='vm_names', action='store_true',
-                      default=False, help='libvirt domains to provision')
     parser.add_option('-i', dest='image', help='source image, must be raw')
+    parser.add_option('-c', dest='config_drive', help='config drive image')
     parser.add_option('-l', '--swap-label', dest='swap_label',
                       default=SWAP_LABEL,
                       help='swap partition label')
     parser.add_option('-s', '--swap-size', dest='swap_size', type=int,
                       default=SWAP_MB,
                       help='swap size in MBs')
-    parser.add_option('-f', '--host-path-filter', dest='host_path_filter',
-                      default=HOST_PATH_FILTER,
-                      help='filter to search the OS vdisk')
     options, args = parser.parse_args()
     if (not options.image) or len(args) == 0:
         print("image and vdisk parameters are mandatory")
         sys.exit(1)
     provision(args,
-              vm_names=options.vm_names,
               img=options.image,
               swap_size=options.swap_size * 1024 * 2,
-              swap_label=options.swap_label,
-              host_path_filter=options.host_path_filter)
+              swap_label=options.swap_label)
     sys.exit(0)
 
 

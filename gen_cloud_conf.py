@@ -12,12 +12,12 @@ import uuid
 from sshutils import get_authorized_keys
 
 MY_DIR = os.path.abspath(os.path.dirname(__file__))
+BUILD_DIR = os.path.join(MY_DIR, '.build/config-drive')
 TEMPLATE_DIR = os.path.join(MY_DIR, 'templates/config-drive')
 
 
 def render_and_save(data, vm_name=None, tmpl_dir=TEMPLATE_DIR):
-    base_dir = '.build/config-drive/{0}'.format(vm_name)
-    base_dir = os.path.join(MY_DIR, base_dir)
+    base_dir = os.path.join(BUILD_DIR, vm_name)
     if not os.path.exists(base_dir):
         os.makedirs(base_dir)
 
@@ -55,7 +55,7 @@ def generate_cc(dat, vm_name=None, tmpl_dir=TEMPLATE_DIR):
     data['my_name'] = vm_name
     data['my_uuid'] = uuid.uuid4()
     out_dir = render_and_save(data, vm_name=vm_name, tmpl_dir=tmpl_dir)
-    conf_img = os.path.join(MY_DIR, '{}-config.iso'.format(vm_name))
+    conf_img = os.path.join(BUILD_DIR, '{}-config.iso'.format(vm_name))
     gen_iso(out_dir, conf_img)
     return conf_img
 

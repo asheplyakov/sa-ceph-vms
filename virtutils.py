@@ -18,11 +18,25 @@ def _get_device_mac(net_dev_xml):
     return mac
 
 
+def _set_device_mac(net_dev_xml, mac):
+    mac_node = net_dev_xml.find('mac')
+    if mac_node is None:
+        mac_node = ElementTree.Element('mac')
+        net_dev_xml.insert(0, mac_node)
+    mac_node.set('address', mac)
+
+
 def _get_source_network(net_dev_xml):
     source_node = net_dev_xml.find('source')
     if source_node is None:
         raise ValueError('Interface is not attached to a network')
     return source_node.get('network')
+
+
+def _get_vm_macs(vm_xml):
+    return dict((_get_source_network(netdev_xml),
+                 _get_device_mac(netdev_xml))
+                for netdev_xml in _enumerate_network_devices(vm_xml))
 
 
 def _get_leases_file_name(net_name):
@@ -33,6 +47,11 @@ def _get_leases_file_name(net_name):
 
 def _enumerate_network_devices(node_xml):
     return node_xml.findall("devices/interface[@type='network']")
+
+
+def _get_devices_by_source_net(node_xml):
+    return dict((_get_source_network(netdev_xml), netdev_xml)
+                for netdev_xml in _enumerate_network_devices(node_xml))
 
 
 def _get_leased_ip_by_mac(mac, leases_file_name):
@@ -72,8 +91,6 @@ def _get_vm_ips(dom_xml, conn=DEFAULT_LIBVIRT_CONN):
 
 
 def get_libvirt_net_domain(net_name, conn='qemu:///system'):
-    out = subprocess.check_output(['virsh', '-c', conn,
-                                   'net-dumpxml', net_name])
     # <network connections='1'>
     #   <name>saceph-priv</name>
     #   <uuid>f231c38f-da75-4977-8928-95be84f9953a</uuid>
@@ -86,7 +103,7 @@ def get_libvirt_net_domain(net_name, conn='qemu:///system'):
     #      </dhcp>
     #   </ip>
     # </network>
-    net_xml = ElementTree.fromstring(out.strip())
+    net_xml = _net_dumpxml(net_name, conn)
     try:
         domain_xml = net_xml.findall('domain')[0]
         return domain_xml.get('name')
@@ -94,10 +111,47 @@ def get_libvirt_net_domain(net_name, conn='qemu:///system'):
         return None
 
 
+def libvirt_net_host_ip(net_name, conn='qemu:///system'):
+    # <network connections='1'>
+    #   <name>saceph-priv</name>
+    #   <bridge name='br-saceph-priv' stp='on' delay='0'/>
+    #   <mac address='52:54:00:b2:7f:37'/>
+    #   <ip address='10.253.0.1' netmask='255.255.255.0'>
+    net_xml = _net_dumpxml(net_name, conn)
+    ip_xml = net_xml.find('ip')
+    if ip_xml is None:
+        return None
+    else:
+        return ip_xml.get('address')
+
+
+def keep_existing_mac_addresses(new_vm_xml, conn='qemu:///system'):
+    """Try to preserve MAC addresses if VM is already defined"""
+    name = new_vm_xml.find('name').text
+    if not vm_exists(name):
+        return
+    out = subprocess.check_output(['virsh', '-c', conn, 'dumpxml', name])
+    vm_xml = ElementTree.fromstring(out)
+    new_net_devices = _get_devices_by_source_net(new_vm_xml)
+    for src_net, old_dev in _get_devices_by_source_net(vm_xml).iteritems():
+        if src_net in new_net_devices:
+            mac = _get_device_mac(old_dev)
+            new_dev = new_net_devices[src_net]
+            _set_device_mac(new_dev, mac)
+
+
 def get_vm_ips(name, conn='qemu:///system'):
     out = subprocess.check_output(['virsh', '-c', conn, 'dumpxml', name])
     dom_xml = ElementTree.fromstring(out)
     return _get_vm_ips(dom_xml, conn=conn)
+
+
+def get_vm_macs(vm_name, conn='qemu:///system'):
+    """Get VM mac addresses along with source network names"""
+    if not vm_exists(vm_name, conn):
+        return {}
+    vm_xml = _virsh_dumpxml(vm_name, conn)
+    return _get_vm_macs(vm_xml)
 
 
 def vm_exists(vm_name, conn='qemu:///system'):
@@ -146,6 +200,17 @@ def destroy_undefine_vm(name, conn='qemu:///system'):
 
 def start_vm(name, conn='qemu:///system'):
     subprocess.check_call(['virsh', '-c', conn, 'start', name])
+
+
+def _net_dumpxml(net_name, conn='qemu:///system'):
+    out = subprocess.check_output(['virsh', '-c', conn,
+                                   'net-dumpxml', net_name])
+    return ElementTree.fromstring(out.strip())
+
+
+def _virsh_dumpxml(vm_name, conn='qemu:///system'):
+    out = subprocess.check_output(['virsh', '-c', conn, 'dumpxml', vm_name])
+    return ElementTree.fromstring(out.strip())
 
 
 def check_ssh_known_host(name_or_ip, known_hosts_file=KNOWN_HOSTS_FILE):

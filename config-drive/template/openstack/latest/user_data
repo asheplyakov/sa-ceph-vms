@@ -10,9 +10,11 @@ disable_root: False
 ssh_authorized_keys:{% for key in ssh_authorized_keys %}
  - {{ key }}{% endfor %}
 
+{% if swap_label %}
 bootcmd:
- - echo 'LABEL=MOREVM none swap sw 0 0' >> /etc/fstab
+ - echo 'LABEL={{ swap_label }} none swap sw 0 0' >> /etc/fstab
  - swapon -a || true
+{% endif %}
 
 apt_sources:
  - source: deb http://asheplyakov.srt.mirantis.net/Public/repos/ceph {{ ceph_release }}-{{ distro_release }} main
@@ -20,7 +22,9 @@ apt_sources:
 
 add_apt_repo_match: '^[\w-]+:\w'
 
+{% if http_proxy %}
 apt_proxy: {{ http_proxy }}
+{% endif %}
 
 write_files:
  - path: /etc/hosts
@@ -62,13 +66,17 @@ runcmd:
  - apt-get dist-upgrade -y
  - "echo 'kexec-tools kexec-tools/load_kexec boolean true' | debconf-set-selections"
  - apt-get install -y haveged kexec-tools nfs-common gdbserver vim-nox ceph parted
- - "echo 'sahost:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
+{% if hypervisor_ip %}
+ - "echo '{{ hypervisor_ip }}:/home/asheplyakov/work /media/work nfs rw,tcp,hard,noatime,_netdev 0 0' >> /etc/fstab"
+{% endif %}
  - dpkg --configure -a
  - "apt-get purge -y cloud-init"
 
+{% if web_callback_url %}
 phone_home:
   url: {{ web_callback_url }}
   post: [ hostname, pub_key_rsa ]
+{% endif %}
 
 power_state:
   mode: reboot

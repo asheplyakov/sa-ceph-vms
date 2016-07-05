@@ -8,6 +8,8 @@ import subprocess
 import sys
 import uuid
 
+from sshutils import get_authorized_keys
+
 MY_DIR = os.path.abspath(os.path.dirname(__file__))
 TEMPLATE_DIR = os.path.join(MY_DIR, 'templates/config-drive')
 
@@ -31,14 +33,6 @@ def render_and_save(data, vm_name=None, tmpl_dir=TEMPLATE_DIR):
         shutil.copy(out_file, alt_dir)
 
     return base_dir
-
-
-def get_authorized_keys(authorized_keys_file=None):
-    if not authorized_keys_file:
-        authorized_keys_file = os.path.expanduser('~/.ssh/authorized_keys')
-    with open(authorized_keys_file, 'r') as f:
-        keys = f.readlines()
-    return keys
 
 
 def gen_iso(src, dst):

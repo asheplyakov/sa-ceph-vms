@@ -5,7 +5,7 @@
 import sys
 import web
 from optparse import OptionParser
-from virtutils import update_known_hosts
+from virtutils import update_vm_ssh_keys
 
 
 urls = (
@@ -38,7 +38,7 @@ class VMRegister(object):
             for vm_name, ssh_key in vm_ssh_keys.iteritems():
                 print("{vm_name} {ssh_key}".format(vm_name=vm_name,
                                                    ssh_key=ssh_key))
-                update_known_hosts(vm_name=vm_name, ssh_key=ssh_key)
+                update_vm_ssh_keys(vm_name=vm_name, ssh_key=ssh_key)
             # XXX: way too cowboy-style
             web.ctx.globals.app.stop()
 

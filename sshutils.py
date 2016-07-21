@@ -2,6 +2,8 @@
 import os
 import subprocess
 
+from dnsutils import guess_fqdn
+
 KNOWN_HOSTS_FILE = os.path.expanduser('~/.ssh/known_hosts')
 
 
@@ -42,9 +44,11 @@ def update_known_hosts(ips=None, ssh_key=None,
     ips = [('10.20.0.2', 'fuelmaster'), ('10.20.0.3', 'node1')]
     update_known_hosts(ips=ips, ssh_key='foobar')
     """
-    for ip, fqdn in ips:
-        # wipe out the old key (if any)
-        remove_ssh_known_host(fqdn)
+
+    for ip, hostname in ips:
+        # wipe out the old keys (if any)
+        remove_ssh_known_host(hostname)
+        remove_ssh_known_host(guess_fqdn(ip=ip, hostname=hostname))
         # Remove entries having the same IP just in a case. Note that
         # addr might be None for several reasons (VM is down at the moment,
         # network configuration is still in progress, etc)
@@ -53,6 +57,7 @@ def update_known_hosts(ips=None, ssh_key=None,
 
     if ssh_key:
         with open(known_hosts_file, 'a') as f:
-            for addr, fqdn in ips:
+            for ip, hostname in ips:
+                fqdn = guess_fqdn(ip=ip, hostname=hostname)
                 f.write('{fqdn} {key}\n'.format(fqdn=fqdn, key=ssh_key))
             f.flush()

@@ -1,11 +1,5 @@
 <domain type='kvm'>
   <name>{{ vm_name }}</name>
-  <metadata>
-    <ansible:inventory xmlns:ansible="ansible">
-      <ansible:role>{{ role }}</ansible:role>
-      <ansible:cluster>{{ vm_cluster_name }}</ansible:cluster>
-    </ansible:inventory>
-  </metadata>
   <memory unit='MiB'>{{ ram_mb }}</memory>
   <currentMemory unit='MiB'>{{ ram_mb }}</currentMemory>
   <vcpu placement='static'>{{ cpu_count }}</vcpu>

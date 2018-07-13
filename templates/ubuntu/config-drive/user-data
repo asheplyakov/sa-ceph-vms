@@ -3,7 +3,7 @@
 chpasswd:
   list: |
     root:r00tme
-    ubuntu:ubuntu
+    user:user
   expire: False
 ssh_pwauth: True
 disable_root: False

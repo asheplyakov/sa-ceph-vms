@@ -2,7 +2,7 @@
 
 chpasswd:
   list: |
-    root:r00tme
+    root:rootme
     user:user
   expire: False
 ssh_pwauth: True
@@ -17,11 +17,14 @@ bootcmd:
 {% endif %}
 
 runcmd:
- - yum install -y openssh-server
- - yum install -y python2
- - yum install -y python2-dnf
  - systemctl enable serial-getty@ttyS0
  - systemctl start serial-getty@ttyS0
+ - apt-get install -y haveged
+ - systemctl enable haveged.service
+ - systemctl start haveged.service
+ - apt-get install -y openssh-server
+ - systemctl enable sshd.service
+ - systemctl start sshd.service
 
 {% if web_callback_url %}
 phone_home:
